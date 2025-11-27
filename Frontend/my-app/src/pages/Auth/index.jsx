@@ -7,7 +7,6 @@ import AuthCard from '../../components/AuthCard';
 import AuthToggle from '../../components/AuthToggle';
 import SignInForm from '../../components/SignInForm';
 import SignUpForm from '../../components/SignUpForm';
-import ExpertSignInForm from '../../components/ExpertSignInForm';
 import Footer from '../../components/Footer';
 import StyledAlert from '../../components/StyledAlert';
 
@@ -41,8 +40,7 @@ const AuthPage = () => {
 
   const authOptions = [
     { value: 'signin', label: 'Sign In' },
-    { value: 'signup', label: 'Sign Up' },
-    { value: 'expert', label: 'Expert' }
+    { value: 'signup', label: 'Sign Up' }
   ];
 
   const handleModeChange = (event, newMode) => {
@@ -55,15 +53,9 @@ const AuthPage = () => {
   const handleSuccess = (result, message) => {
     setAlert({ type: 'success', message });
     console.log(`${authMode} success:`, result);
-    
-    // Redirect based on user type
-    if (authMode === 'expert') {
-      console.log('Navigating to /expert-dashboard...');
-      navigate('/expert-dashboard');
-    } else {
-      console.log('Navigating to /chatbot...');
-      navigate('/chatbot');
-    }
+    // Always redirect to chatbot
+    console.log('Navigating to /chatbot...');
+    navigate('/chatbot');
   };
 
   const handleError = (message) => {
@@ -96,10 +88,8 @@ const AuthPage = () => {
 
           {authMode === 'signin' ? (
             <SignInForm onSuccess={handleSuccess} onError={handleError} />
-          ) : authMode === 'signup' ? (
-            <SignUpForm onSuccess={handleSuccess} onError={handleError} />
           ) : (
-            <ExpertSignInForm onSuccess={handleSuccess} onError={handleError} />
+            <SignUpForm onSuccess={handleSuccess} onError={handleError} />
           )}
 
           <Typography
@@ -112,10 +102,8 @@ const AuthPage = () => {
             }}
           >
             {authMode === 'signin' 
-              ? "Don't have an account? Click Sign Up above. Experts use Expert Sign In."
-              : authMode === 'signup'
-              ? "Already have an account? Click User Sign In above. Experts use Expert Sign In."
-              : "Username and Passkey are pre-determined by us for expert Sign In."
+              ? "Don't have an account? Click Sign Up above."
+              : "Already have an account? Click Sign In above."
             }
           </Typography>
         </AuthCard>

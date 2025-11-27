@@ -9,7 +9,7 @@ import ChatMessagesArea from '../../components/ChatMessagesArea';
 import ChatInput from '../../components/ChatInput';
 import StockPredictor from '../../components/StockPredictor';
 import ChatAPI from '../../api/ChatAPI';
-import useExpertMessaging from '../../hooks/useExpertMessaging';
+
 
 const PageWrapper = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -65,7 +65,6 @@ const FeatureContent = styled(Box)(({ theme }) => ({
 const FinancialChatbot = () => {
   const { user } = useSelector(state => state.auth);
   // Initialize expert messaging system on this page to ensure last logout time is fetched and stored
-  useExpertMessaging();
   const [activeFeature, setActiveFeature] = useState('chatbot');
   const [messages, setMessages] = useState([]);
 

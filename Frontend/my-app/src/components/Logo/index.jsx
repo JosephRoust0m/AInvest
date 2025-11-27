@@ -20,7 +20,7 @@ const Logo = ({ onClick, ...props }) => {
       onClick={onClick}
       {...props}
     >
-      Financial
+      AInvest
     </LogoText>
   );
 };

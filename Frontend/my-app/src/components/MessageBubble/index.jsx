@@ -22,8 +22,7 @@ const formatMessageText = (text, isWelcomeMessage = false) => {
     .replace(/([.!?])\s+([A-Z][a-z]+\s+[A-Z][a-z]+.*?:)/g, '$1\n\n$2')
     
     // Handle warnings or disclaimers (⚠️ symbol) - add line break before
-    .replace(/(.)⚠️/g, '$1\n\n⚠️')
-    .replace(/^⚠️/g, '\n\n⚠️')
+    .replace(/(^|[^\n])⚠️/g, (match, p1) => `${p1}\n\n⚠️`)
     
     // Add spacing after colons when followed by content
     .replace(/(:)\s*(?=[A-Z])/g, '$1 ')

@@ -7,8 +7,6 @@ import Logo from '../Logo';
 import NavigationMenu from '../NavigationMenu';
 import { logout } from '../../store/authSlice';
 import AuthAPI from '../../api/AuthAPI';
-import useExpertMessaging from '../../hooks/useExpertMessaging';
-import useExpertUserMessaging from '../../hooks/useExpertUserMessaging';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #2a1428 100%)',
@@ -18,25 +16,15 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 
 const Navbar = () => {
   const dispatch = useDispatch();
-  const { user, userType } = useSelector(state => state.auth);
-  const { handleLogout } = useExpertMessaging();
-  const { handleExpertLogout } = useExpertUserMessaging();
+  const { user, userType } = useSelector(state => state.auth);;
   const navigate = useNavigate();
 
   const handleSignOut = async () => {
     try {
-      if (userType === 'expert') {
-        // Handle expert logout
-        await handleExpertLogout();
-      } else {
-        // Handle user logout
-        await handleLogout();
-        
         // Send logout timestamp to backend with user email (legacy support)
         if (user?.email) {
           await AuthAPI.sendLogoutTimestamp(user.username);
         }
-      }
     } catch (error) {
       console.error('Error during logout process:', error);
     }
