@@ -127,7 +127,7 @@ const SignUpForm = ({ onSuccess, onError }) => {
       }));
 
       
-      onSuccess?.(result, 'Account created successfully! Welcome to Financial.');
+      onSuccess?.(result, 'Account created successfully! Welcome to AInvest.');
       
       // Reset form
       setFormData({

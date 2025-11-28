@@ -22,6 +22,7 @@ const FooterContent = styled(Box)({
 });
 
 const Footer = () => {
+  const currentYear = new Date().getFullYear();
   return (
     <FooterContainer>
       <FooterContent>
@@ -33,7 +34,7 @@ const Footer = () => {
             textAlign: 'center'
           }}
         >
-          © 2025 Financial. All rights reserved.
+          © {currentYear} AInvest. All rights reserved.
         </Typography>
       </FooterContent>
     </FooterContainer>
