@@ -5,7 +5,7 @@ class AuthAPI {
 
   async signIn(credentials) {
     try {
-      const response = await fetch(`${this.baseURL}/api/sign-in`, {
+      const response = await fetch(this.baseURL+`/api/sign-in`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -42,7 +42,7 @@ class AuthAPI {
   async signUp(userData) {
     try {
       console.log(this.baseURL+"/api/sign-up")
-      const response = await fetch(`${this.baseURL}/api/sign-up`, {
+      const response = await fetch(this.baseURL+`/api/sign-up`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -95,7 +95,7 @@ class AuthAPI {
   async sendLogoutTimestamp(username) {
     try {
       console.log('Sending logout timestamp for username:', username);
-      const response = await fetch(`${this.baseURL}/api/user/logout-timestamp`, {
+      const response = await fetch(this.baseURL+`/api/user/logout-timestamp`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

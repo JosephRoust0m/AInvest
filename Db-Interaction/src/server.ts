@@ -4,7 +4,7 @@ import { db } from './database';
 import { userService } from './userService';
 
 const app = express();
-const PORT = process.env.PORT || 7000;
+const PORT = process.env.PORT;
 
 // Middleware
 app.use(cors());
@@ -76,9 +76,9 @@ app.use('*', (req, res) => {
 });
 
 // Start server
-app.listen(7000, () => {
-  console.log(`🚀 Server running on port 7000`);
-  console.log(`📊 Health check: http://localhost:7000/health`);
+app.listen(PORT, () => {
+  console.log(`🚀 Server running on port ${PORT}`);
+  console.log(`📊 Health check: http://localhost:${PORT}/health`);
 });
 
 // Graceful shutdown
