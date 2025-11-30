@@ -5,8 +5,7 @@ class ChatAPI {
 
   async sendMessage(message, context = []) {
     try {
-      console.log('Sending message to AI backend:', message, this.aiBackendURL);
-      const response = await fetch(`${this.aiBackendURL}/api/chat`, {
+      const response = await fetch(this.aiBackendURL+`/api/chat`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,7 +37,7 @@ class ChatAPI {
 
   async predictStock(stockName, timeframe) {
     try {
-      const response = await fetch(`${this.aiBackendURL}/api/predict`, {
+      const response = await fetch(this.aiBackendURL+`/api/predict`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

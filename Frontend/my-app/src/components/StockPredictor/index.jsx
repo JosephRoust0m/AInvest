@@ -114,12 +114,12 @@ const StockPredictor = () => {
     setLoading(true);
     try {
       const result = await ChatAPI.predictStock(stockName, timeframe);
-      
-      if (result.success) {
+
+      if (result.success && result?.prediction?.average_price_prediction) {
         setPrediction(result);
       } else {
         setPrediction({
-          error: result.error
+          error: "No data available for the given stock symbol and timeframe."
         });
       }
     } catch (error) {

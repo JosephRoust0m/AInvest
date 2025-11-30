@@ -25,10 +25,11 @@ const OPENAI_API_KEY = process.env.API_KEY;
 const API_URL = "https://api.polygon.io";
 const config = {
     headers: {
-        'Authorization': `Bearer ${process.env.POLYGON_API_KEY}`
+        'Authorization': `Bearer ` + process.env.POLYGON_API_KEY
     }
 };
 const STOCK_PREDICTOR_URL = process.env.STOCK_PREDICTOR_URL;
+
 const FINANCIAL_SYSTEM_PROMPT = `You are a specialized Financial AI Assistant focused on finance, investing, and market-related topics.
 
 INSTRUCTIONS:
@@ -62,19 +63,29 @@ When answering financial questions:
 Remember: Be flexible and interpret questions generously - if there's any business, economic, or market angle, treat it as finance-related.`;
 
 // Function to validate stock symbol format
-function isValidStockSymbol(symbol: string): boolean {
+async function isValidStockSymbol(symbol: string): Promise<boolean> {
     if (!symbol || typeof symbol !== 'string') {
         return false;
     }
-    
-    // Remove whitespace and convert to uppercase
-    const cleanSymbol = symbol.trim().toUpperCase();
-    
-    // Check if it matches typical stock symbol pattern (1-5 uppercase letters)
-    // Allow some common formats like BRK.A, BRK.B for Berkshire Hathaway
-    const stockPattern = /^[A-Z]{1,5}(\.[A-Z]{1,2})?$/;
-    
-    return stockPattern.test(cleanSymbol);
+        
+        const cleanSymbol = symbol.trim().toUpperCase();
+    try {
+        const response = await axios.get(`${API_URL}/v3/reference/tickers`, {
+            params: {
+                ticker: cleanSymbol,
+                active: true,
+                limit: 1
+            },
+            headers: {
+                'Authorization': `Bearer ${process.env.POLYGON_API_KEY}`
+            }
+        });
+
+        return response.data && response.data.results && response.data.results.length > 0;
+    } catch (error) {
+        console.error('Error validating stock symbol:', error);
+        return false;
+    }
 }
 
 // Function to enhance financial queries for better results
