@@ -1,0 +1,68 @@
+version: '3.8'
+services:
+  db-interaction:
+    build:
+      context: ./Db-Interaction
+    image: db-interaction
+    container_name: db-interaction
+    ports:
+      - "7000:7000"
+    env_file:
+      - ./Db-Interaction/.env
+    depends_on:
+      - postgres
+    restart: on-failure
+
+  ai-service:
+    build:
+      context: ./AI-Service
+    image: ai-service
+    container_name: ai-service
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./AI-Service/.env
+    depends_on:
+      - stock-predictor
+    restart: on-failure
+
+  stock-predictor:
+    build:
+      context: ./Stock-Predictor
+    image: stock-predictor
+    container_name: stock-predictor
+    ports:
+      - "5000:5000"
+    restart: on-failure
+
+  frontend:
+    build:
+      context: ./Frontend/my-app
+    image: frontend-app
+    container_name: frontend-app
+    ports:
+      - "80:80"
+    env_file:
+      - ./Frontend/my-app/.env
+    depends_on:
+      - ai-service
+      - db-interaction
+    restart: on-failure
+
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres
+    env_file:
+      - ./postgres.env
+    environment:
+      POSTGRES_DB: Financial
+      POSTGRES_USER: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: on-failure
+
+volumes:
+  pgdata:
+
