@@ -1,6 +1,6 @@
 class AuthAPI {
   constructor() {
-    this.baseURL = 'http://localhost:7000';
+    this.baseURL = 'https://db-microservice-a8gjamdzfff3ewgy.canadacentral-01.azurewebsites.net';
   }
 
   async signIn(credentials) {

@@ -42,8 +42,6 @@ services:
     container_name: frontend-app
     ports:
       - "80:80"
-    env_file:
-      - ./Frontend/my-app/.env
     depends_on:
       - ai-service
       - db-interaction
