@@ -34,14 +34,16 @@ class DatabaseConnection {
     }
 
     try {
-      const poolConfig: PoolConfig = this.config.connectionString 
-        ? { connectionString: this.config.connectionString }
-        : {
+      const poolConfig: PoolConfig =  
+          {
             host: this.config.host,
             port: this.config.port,
             database: this.config.database,
             user: this.config.user,
-            password: this.config.password
+            password: this.config.password,
+            ssl: {
+              rejectUnauthorized: false,
+            },
           };
 
       this.pool = new Pool(poolConfig);

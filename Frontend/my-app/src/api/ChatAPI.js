@@ -1,6 +1,6 @@
 class ChatAPI {
   constructor() {
-    this.aiBackendURL = 'http://localhost:3000';
+    this.aiBackendURL = 'https://ai-microservice-dthnb4cne0cpbscf.canadacentral-01.azurewebsites.net';
   }
 
   async sendMessage(message, context = []) {
