@@ -1,0 +1,103 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+pool:
+  vmImage: ubuntu-latest
+steps:
+# AI-Service
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: 'AI-Service'
+  displayName: '[AI-Service] npm install'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build'
+    workingDir: 'AI-Service'
+  displayName: '[AI-Service] npm run build'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'test'
+    workingDir: 'AI-Service'
+  displayName: '[AI-Service] run tests'
+# Db-Interaction
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: 'Db-Interaction'
+  displayName: '[Db-Interaction] npm install'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build'
+    workingDir: 'Db-Interaction'
+  displayName: '[Db-Interaction] npm run build'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'test'
+    workingDir: 'Db-Interaction'
+  displayName: '[Db-Interaction] run tests'
+# Frontend
+- task: Npm@1
+  inputs:
+    command: 'install'
+    workingDir: 'Frontend/my-app'
+  displayName: '[Frontend] npm install'
+- task: Npm@1
+  inputs:
+    command: 'custom'
+    customCommand: 'run build'
+    workingDir: 'Frontend/my-app'
+  displayName: '[Frontend] npm run build'
+# Stock-Predictor
+- task: UsePythonVersion@0
+  inputs:
+    versionSpec: '3.11'
+  displayName: '[Stock-Predictor] Use Python 3.11'
+- script: |
+    cd Stock-Predictor
+    pip install -r requirements.txt
+  displayName: '[Stock-Predictor] Install dependencies'
+- script: |
+    cd Stock-Predictor
+    pytest tests/
+  displayName: '[Stock-Predictor] Run tests'
+# Copy all artifacts to staging
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'AI-Service/dist'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/AI-Service'
+  displayName: 'Copy AI-Service build files'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'Db-Interaction/dist'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Db-Interaction'
+  displayName: 'Copy Db-Interaction build files'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'Frontend/my-app/dist'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Frontend'
+  displayName: 'Copy Frontend build files'
+- task: CopyFiles@2
+  inputs:
+    SourceFolder: 'Stock-Predictor/src'
+    Contents: '**'
+    TargetFolder: '$(Build.ArtifactStagingDirectory)/Stock-Predictor'
+  displayName: 'Copy Stock-Predictor source files'
+# Publish all artifacts
+- task: PublishBuildArtifacts@1
+  inputs:
+    PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+    ArtifactName: 'FinancialApp'
+    publishLocation: 'Container'
+  displayName: 'Publish all artifacts'
