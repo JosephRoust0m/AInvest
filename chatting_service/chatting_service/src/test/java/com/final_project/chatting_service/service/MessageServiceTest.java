@@ -1,7 +1,6 @@
 package com.final_project.chatting_service.service;
 
 import com.final_project.chatting_service.dto.MessageRequestDTO;
-import com.final_project.chatting_service.service.MessageService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
