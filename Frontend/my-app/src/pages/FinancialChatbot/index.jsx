@@ -8,7 +8,7 @@ import FeatureToggle from '../../components/FeatureToggle';
 import ChatMessagesArea from '../../components/ChatMessagesArea';
 import ChatInput from '../../components/ChatInput';
 import StockPredictor from '../../components/StockPredictor';
-import ChatAPI from '../../api/ChatAPI';
+import AIAPI from '../../api/AIAPI';
 
 
 const PageWrapper = styled(Box)(({ theme }) => ({
@@ -112,7 +112,7 @@ const FinancialChatbot = () => {
     setLoading(true);
 
     try {
-      const result = await ChatAPI.sendMessage(inputText, messages.slice(-5));
+      const result = await AIAPI.sendMessage(inputText, messages.slice(-5));
       
       const responseText = result.success ? result.response : result.error;
       const botMessage = {
@@ -133,7 +133,7 @@ const FinancialChatbot = () => {
         for (let i = 0; i < responseText.length; i++) {
           setTimeout(() => {
             currentText += responseText[i];
-            console.log('Typing character:', currentText); // Debug log
+            
             
             setMessages(prev => prev.map(msg => 
               msg.id === botMessage.id 

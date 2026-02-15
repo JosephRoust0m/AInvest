@@ -3,9 +3,9 @@ import { useDispatch } from 'react-redux';
 import { Box, TextField } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import GradientButton from '../GradientButton';
-import StyledAlert from '../StyledAlert';
 import AuthAPI from '../../api/AuthAPI';
 import { loginSuccess } from '../../store/authSlice';
+
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
   marginBottom: theme.spacing(2),
@@ -14,13 +14,11 @@ const StyledTextField = styled(TextField)(({ theme }) => ({
   },
 }));
 
-const SignUpForm = ({ onSuccess, onError }) => {
+const SignInForm = ({ onSuccess, onError }) => {
   const dispatch = useDispatch();
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
@@ -39,19 +37,6 @@ const SignUpForm = ({ onSuccess, onError }) => {
         [name]: ''
       }));
     }
-
-    // Real-time password confirmation validation
-    if (name === 'confirmPassword' && formData.password && value !== formData.password) {
-      setErrors(prev => ({
-        ...prev,
-        confirmPassword: 'Passwords do not match'
-      }));
-    } else if (name === 'password' && formData.confirmPassword && value !== formData.confirmPassword) {
-      setErrors(prev => ({
-        ...prev,
-        confirmPassword: 'Passwords do not match'
-      }));
-    }
   };
 
   const validateForm = () => {
@@ -59,34 +44,10 @@ const SignUpForm = ({ onSuccess, onError }) => {
 
     if (!formData.username.trim()) {
       newErrors.username = 'Username is required';
-    } else if (formData.username.length < 3) {
-      newErrors.username = 'Username must be at least 3 characters';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = 'Email is required';
-    } else {
-      try {
-        AuthAPI.validateEmail(formData.email);
-      } catch (error) {
-        newErrors.email = error.message;
-      }
     }
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
-    }
-
-    if (!formData.confirmPassword) {
-      newErrors.confirmPassword = 'Please confirm your password';
-    } else {
-      try {
-        AuthAPI.validatePassword(formData.password, formData.confirmPassword);
-      } catch (error) {
-        newErrors.confirmPassword = error.message;
-      }
     }
 
     setErrors(newErrors);
@@ -102,34 +63,25 @@ const SignUpForm = ({ onSuccess, onError }) => {
 
     setLoading(true);
     
-    
     try {
-      const result = await AuthAPI.signUp({
-        username: formData.username,
-        email: formData.email,
-        password: formData.password
-      });
+      const result = await AuthAPI.signInAdvisor(formData);
       
-      // Store username in localStorage
-      const username = result.user.username || formData.username;
+      const username = result.advisor?.username;
       localStorage.setItem('username', username);
       
       // Store user data in Redux (excluding password)
-      dispatch(loginSuccess({
+      const userData = {
         username: username,
-        email: result.user.email || formData.email,
         token: result._token || result.token || result.accessToken
-      }));
-
+      };
+      dispatch(loginSuccess(userData));
       
-      onSuccess?.(result, 'Account created successfully! Welcome to AInvest.');
+      onSuccess?.(result, 'Sign in successful! Welcome back.');
       
       // Reset form
       setFormData({
         username: '',
-        email: '',
-        password: '',
-        confirmPassword: ''
+        password: ''
       });
       
     } catch (error) {
@@ -145,25 +97,13 @@ const SignUpForm = ({ onSuccess, onError }) => {
         fullWidth
         label="Username"
         name="username"
+        type="text"
         value={formData.username}
         onChange={handleInputChange}
         required
         error={!!errors.username}
         helperText={errors.username}
         autoComplete="username"
-      />
-
-      <StyledTextField
-        fullWidth
-        label="Email"
-        name="email"
-        type="email"
-        value={formData.email}
-        onChange={handleInputChange}
-        required
-        error={!!errors.email}
-        helperText={errors.email}
-        autoComplete="email"
       />
 
       <StyledTextField
@@ -176,20 +116,7 @@ const SignUpForm = ({ onSuccess, onError }) => {
         required
         error={!!errors.password}
         helperText={errors.password}
-        autoComplete="new-password"
-      />
-
-      <StyledTextField
-        fullWidth
-        label="Confirm Password"
-        name="confirmPassword"
-        type="password"
-        value={formData.confirmPassword}
-        onChange={handleInputChange}
-        required
-        error={!!errors.confirmPassword}
-        helperText={errors.confirmPassword}
-        autoComplete="new-password"
+        autoComplete="current-password"
       />
 
       <GradientButton
@@ -201,10 +128,10 @@ const SignUpForm = ({ onSuccess, onError }) => {
         disabled={loading}
         sx={{ mt: 2 }}
       >
-        Create Account
+        Advisor Sign In
       </GradientButton>
     </Box>
   );
 };
 
-export default SignUpForm;
+export default SignInForm;

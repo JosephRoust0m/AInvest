@@ -1,11 +1,11 @@
 import React from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useSelector } from 'react-redux';
 import { AppBar, Toolbar } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../Logo';
 import NavigationMenu from '../NavigationMenu';
-import { logout } from '../../store/authSlice';
+import useAuth from '../../model/useAuth';
 import AuthAPI from '../../api/AuthAPI';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
@@ -15,25 +15,22 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 }));
 
 const Navbar = () => {
-  const dispatch = useDispatch();
-  const { user, userType } = useSelector(state => state.auth);;
+  const { user, userType } = useSelector(state => state.auth);
   const navigate = useNavigate();
-
+  const auth = useAuth();
   const handleSignOut = async () => {
     try {
-        // Send logout timestamp to backend with user email (legacy support)
-        if (user?.email) {
-          await AuthAPI.sendLogoutTimestamp(user.username);
-        }
+      // Call the correct logout timestamp API based on userType
+      if (userType === 'advisor') {
+        await AuthAPI.sendLogoutTimestampAdvisor(user.username);
+      } else {
+        await AuthAPI.sendLogoutTimestamp(user.username);
+      }
     } catch (error) {
       console.error('Error during logout process:', error);
     }
-    
-    // Clear Redux state and localStorage
-    dispatch(logout());
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('username');
-    localStorage.removeItem('userType');
+    // Clear Redux state (auth and conversations)
+    await auth.logout();
     navigate('/');
   };
 

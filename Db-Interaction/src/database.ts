@@ -47,7 +47,6 @@ class DatabaseConnection {
           };
 
       this.pool = new Pool(poolConfig);
-
       // Test the connection
       const client = await this.pool.connect();
       client.release();
@@ -88,8 +87,13 @@ class DatabaseConnection {
   }
 
   async queryOne(text: string, params?: any[]): Promise<any | null> {
-    const rows = await this.queryRows(text, params); // here the query gets passed
+    const rows = await this.queryRows(text, params);
     return rows.length > 0 ? rows[0] : null;
+  }
+
+  async queryMany(text: string, params?: any[]): Promise<any[]> {
+    const rows = await this.queryRows(text, params);
+    return rows;
   }
 }
 

@@ -9,6 +9,9 @@ import SignInForm from '../../components/SignInForm';
 import SignUpForm from '../../components/SignUpForm';
 import Footer from '../../components/Footer';
 import StyledAlert from '../../components/StyledAlert';
+import useAuth from '../../model/useAuth';
+import useMessage from '../../model/useMessage';
+import SignInAdvisorForm from '../../components/SignInAdvisorForm';
 
 const GradientTitle = styled(Typography)(({ theme }) => ({
   color: '#ffffff',
@@ -37,10 +40,13 @@ const AuthPage = () => {
   const [authMode, setAuthMode] = useState('signin');
   const [alert, setAlert] = useState({ type: '', message: '' });
   const navigate = useNavigate();
+  const auth = useAuth();
+  //const message = useMessage();
 
   const authOptions = [
     { value: 'signin', label: 'Sign In' },
-    { value: 'signup', label: 'Sign Up' }
+    { value: 'signup', label: 'Sign Up' },
+    { value: 'advisor-signin', label: 'Advisor' },
   ];
 
   const handleModeChange = (event, newMode) => {
@@ -52,9 +58,13 @@ const AuthPage = () => {
 
   const handleSuccess = (result, message) => {
     setAlert({ type: 'success', message });
-    console.log(`${authMode} success:`, result);
-    // Always redirect to chatbot
     console.log('Navigating to /chatbot...');
+    if (authMode === 'advisor-signin') {
+      result.userType = 'advisor';
+    } else {
+      result.userType = 'user';
+    }
+    auth.saveUser(result);
     navigate('/chatbot');
   };
 
@@ -88,9 +98,11 @@ const AuthPage = () => {
 
           {authMode === 'signin' ? (
             <SignInForm onSuccess={handleSuccess} onError={handleError} />
-          ) : (
+          ) : authMode === 'signup' ? (
             <SignUpForm onSuccess={handleSuccess} onError={handleError} />
-          )}
+          ) : authMode === 'advisor-signin' ? (
+            <SignInAdvisorForm onSuccess={handleSuccess} onError={handleError} advisor />
+          ) : null}
 
           <Typography
             variant="body2"
@@ -103,7 +115,9 @@ const AuthPage = () => {
           >
             {authMode === 'signin' 
               ? "Don't have an account? Click Sign Up above."
-              : "Already have an account? Click Sign In above."
+              : authMode === 'signup' 
+                ? "Already have an account? Click Sign In above."
+                : "Are you an advisor? Click Advisor Sign In above."
             }
           </Typography>
         </AuthCard>

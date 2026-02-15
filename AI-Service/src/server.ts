@@ -127,9 +127,7 @@ app.get('/health', (req: Request, res: Response) => {
 
 app.post('/api/chat', async (req: Request, res: Response) => {
     const { message } = req.body;
-    console.log('Received message:', message);
     if (!message) {
-        console.log("hey")
         return res.status(400).json({ error: 'Message is required' });
     }
 
@@ -150,8 +148,7 @@ app.post('/api/chat', async (req: Request, res: Response) => {
         ];
 
         const response = await generateAIResponse(messageToOpenAI);
-        console.log('AI response:', response);
-        // Check if response is the rejection message
+
         const isRejected = response.includes("I can only assist with financial and investment-related topics");
         
         if (isRejected) {
@@ -177,7 +174,6 @@ app.post('/api/chat', async (req: Request, res: Response) => {
 
 async function generateAIResponse(message: OpenAIMessage[]): Promise<string> {
     try {
-        console.log('Sending message to OpenAI:', message);
         const response = await axios.post(
           OPENAI_API_URL,
           {
@@ -235,7 +231,6 @@ app.post("/api/predict", async (req: Request, res: Response) => {
      
     try {
         let adviceResult = await advice(stock.toUpperCase(), timeframe);
-        console.log(adviceResult);
         let finalScore = typeof adviceResult === 'object' ? adviceResult.action : adviceResult;
         const averagePrice =  adviceResult.average_price_predictiion;
         const advices = [];
@@ -376,8 +371,7 @@ async function advice(stockname: string, period: string | number) {
         }
         
         averageScore = averageMLChange + averageNews / 2;
-        console.log('Average ML Score:', averageML);
-        console.log('Combined Average Score:', averageScore);
+
         return {
             "average_price_predictiion": averageML as number,
             "action": averageScore as number

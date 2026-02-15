@@ -72,11 +72,9 @@ const SignInForm = ({ onSuccess, onError }) => {
     
     try {
       const result = await AuthAPI.signIn(formData);
-      console.log('Sign in API result:', result);
       
       // Store username in localStorage - handle different response structures
       const username = result.user?.username || result.username || result.name || 'User';
-      console.log('Extracted username:', username);
       localStorage.setItem('username', username);
       
       // Store user data in Redux (excluding password)
@@ -85,10 +83,8 @@ const SignInForm = ({ onSuccess, onError }) => {
         email: result.user?.email || result.email || formData.email,
         token: result._token || result.token || result.accessToken
       };
-      console.log('Dispatching to Redux:', userData);
       dispatch(loginSuccess(userData));
       
-      console.log('Calling onSuccess callback');
       onSuccess?.(result, 'Sign in successful! Welcome back.');
       
       // Reset form

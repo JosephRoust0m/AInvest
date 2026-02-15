@@ -1,4 +1,4 @@
-class ChatAPI {
+class AIAPI {
   constructor() {
     this.aiBackendURL = 'https://ai-microservice-dthnb4cne0cpbscf.canadacentral-01.azurewebsites.net';
   }
@@ -54,7 +54,7 @@ class ChatAPI {
       }
 
       const data = await response.json();
-      console.log(data);
+      
       return {
         success: true,
         prediction: data
@@ -69,4 +69,4 @@ class ChatAPI {
   }
 }
 
-export default new ChatAPI();
+export default new AIAPI();

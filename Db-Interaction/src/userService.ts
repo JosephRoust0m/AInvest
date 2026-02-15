@@ -12,11 +12,6 @@ export interface SignUpData {
   password: string;
 }
 
-export interface ExpertSignInCredentials {
-  username: string;
-  passkey: string;
-}
-
 export interface User {
   id: number;
   email: string;
@@ -25,12 +20,6 @@ export interface User {
   last_logout?: Date;
 }
 
-export interface Expert {
-  id: number;
-  username: string;
-  passkey: string;
-  last_logout?: Date;
-}
 
 export class UserService {
 
@@ -207,6 +196,12 @@ export class UserService {
         error: 'Failed to record logout timestamp'
       };
     }
+  }
+
+  async fetchUsersConversation(username: string): Promise<User[]> {
+    const query = 'SELECT * FROM conversations Where user_username=$1';
+    const conversations = await db.queryMany(query, [username]);
+    return conversations;
   }
 
   validatePassword(password: string, confirmPassword?: string) {

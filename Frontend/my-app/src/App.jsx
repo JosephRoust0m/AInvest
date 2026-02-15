@@ -1,41 +1,13 @@
-import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
 import AuthPage from './pages/Auth'
 import FinancialChatbot from './pages/FinancialChatbot'
 import ProtectedRoute from './components/ProtectedRoute'
-import { loginSuccess, expertLoginSuccess } from './store/authSlice'
+import AdvisorContacts from './pages/AdvisorContacts'
+import AdvisorsConsultation from './pages/AdvisorsConsultation'
 import './App.css'
 
-function App() {
-  const dispatch = useDispatch()
 
-  useEffect(() => {
-    // Check if user is already authenticated on app load
-    const token = localStorage.getItem('authToken')
-    const storedUsername = localStorage.getItem('username')
-    const userType = localStorage.getItem('userType') || 'user'
-    
-    if (token) {
-      console.log('Found stored token, restoring session');
-      
-      if (userType === 'expert') {
-        // Restore expert session
-        dispatch(expertLoginSuccess({
-          username: storedUsername || 'Expert',
-          token: token
-        }))
-      } else {
-        // Restore user session
-        dispatch(loginSuccess({
-          username: storedUsername || 'User',
-          email: 'user@example.com',
-          token: token,
-          userType: 'user'
-        }))
-      }
-    }
-  }, [dispatch])
+function App() {
 
   return (
     <Router>
@@ -46,6 +18,22 @@ function App() {
             <FinancialChatbot />
           </ProtectedRoute>
         } />
+        <Route
+          path="/advisor-contacts"
+          element={
+            <ProtectedRoute>
+              <AdvisorContacts />
+            </ProtectedRoute>
+          }
+            />
+        <Route
+          path="/advisors-consultation"
+          element={
+            <ProtectedRoute>
+              <AdvisorsConsultation />
+            </ProtectedRoute>
+          }
+        />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -14,39 +14,27 @@ const authSlice = createSlice({
     loginSuccess: (state, action) => {
       state.isAuthenticated = true
       state.user = {
-        username: action.payload.username,
-        email: action.payload.email,
+        username: action.payload?.username || '',
+        email: action.payload?.email || '',
       }
       state.token = action.payload.token
-      state.userType = action.payload.userType || 'user'
+      state.userType = action.payload.userType
     },
-    expertLoginSuccess: (state, action) => {
-      state.isAuthenticated = true
-      state.user = {
-        username: action.payload.username,
-        expertUsername: action.payload.username,
-      }
-      state.token = action.payload.token
-      state.userType = 'expert'
-    },
+
     logout: (state) => {
       state.isAuthenticated = false
       state.user = null
       state.token = null
-      state.userType = 'user'
+      state.userType = null
     },
+
     setLastLogout: (state, action) => {
       if (state.user) {
         state.user.lastLogout = action.payload
       }
     },
-    updateUser: (state, action) => {
-      if (state.user) {
-        state.user = { ...state.user, ...action.payload }
-      }
-    }
   }
 })
 
-export const { loginSuccess, expertLoginSuccess, logout, updateUser, setLastLogout } = authSlice.actions
+export const { loginSuccess, logout, setLastLogout } = authSlice.actions
 export default authSlice.reducer

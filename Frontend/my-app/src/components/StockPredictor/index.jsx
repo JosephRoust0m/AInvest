@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import ChatAPI from '../../api/ChatAPI';
+import AIAPI from '../../api/AIAPI';
 
 const PredictorContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -113,7 +113,7 @@ const StockPredictor = () => {
 
     setLoading(true);
     try {
-      const result = await ChatAPI.predictStock(stockName, timeframe);
+      const result = await AIAPI.predictStock(stockName, timeframe);
 
       if (result.success && result?.prediction?.average_price_prediction) {
         setPrediction(result);
