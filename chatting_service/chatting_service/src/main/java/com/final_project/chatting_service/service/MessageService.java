@@ -16,7 +16,7 @@ public class MessageService {
     public void saveMessage(MessageRequestDTO messageRequestDTO) throws Exception {
         try {
             restTemplate.postForObject(
-                    "http://localhost:7000/api/save-message",
+                    "https://ainvest-8zvd.onrender.com",
                     messageRequestDTO,
                     Void.class
             );

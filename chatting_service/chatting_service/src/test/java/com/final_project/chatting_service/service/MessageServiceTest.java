@@ -31,7 +31,7 @@ class MessageServiceTest {
 
         // Assert
         verify(restTemplate, times(1)).postForObject(
-                eq("http://localhost:7000/api/save-message"),
+                eq("https://ainvest-8zvd.onrender.com"),
                 eq(dto),
                 eq(Void.class)
         );
