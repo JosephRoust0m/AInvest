@@ -28,7 +28,7 @@ const config = {
         'Authorization': `Bearer ` + process.env.POLYGON_API_KEY
     }
 };
-const STOCK_PREDICTOR_URL = process.env.STOCK_PREDICTOR_URL;
+const STOCK_PREDICTOR_URL = "https://stock-predictor-zkz0.onrender.com";
 
 const FINANCIAL_SYSTEM_PROMPT = `You are a specialized Financial AI Assistant focused on finance, investing, and market-related topics.
 
@@ -330,6 +330,7 @@ async function advice(stockname: string, period: string | number) {
         const ML_score = await axios.post(STOCK_PREDICTOR_URL + '/analyze', {
             information: prices
         });
+        console.log("News price scores:", ML_score.data.score_prediction);
           
         const averageML = ML_score.data.score_prediction;
         const averageMLChange = ML_score.data.rate_of_change;
@@ -366,7 +367,7 @@ async function advice(stockname: string, period: string | number) {
             const ML_news_score = await axios.post(STOCK_PREDICTOR_URL + '/analyze', {
                 information: news
             });
-
+            console.log("News sentiment scores:", ML_news_score.data.score_prediction);
             averageNews = (ML_news_score.data.score_prediction) / 100;
         }
         
