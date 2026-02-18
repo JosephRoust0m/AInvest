@@ -25,9 +25,9 @@ RUN npm install
 # Copy the rest of the application code
 COPY . .
 
-# Set environment variables
-ENV STOCK_PREDICTOR_URL=http://localhost:5000 \
-	PORT=3000
+# # Set environment variables
+# ENV STOCK_PREDICTOR_URL=http://localhost:5000 \
+# 	PORT=3000
     
 # Build the TypeScript code
 RUN npm run build
