@@ -17,9 +17,9 @@ COPY package*.json ./
 RUN npm install --omit=dev
 
 COPY --from=build /app/dist ./dist
-COPY server.js .
+COPY ./server.ts .
 
 ENV PORT=3000
 EXPOSE 3000
 
-CMD ["node", "server.js"]
+CMD ["node", "server.ts"]
