@@ -1,6 +1,6 @@
 class MessageAPI {
   constructor() {
-    this.baseURL = 'http://localhost:8080';
+    this.baseURL = 'https://chatting-microservice.onrender.com';
   }
 
   async sendMessage(message) {

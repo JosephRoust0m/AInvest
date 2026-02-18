@@ -19,7 +19,7 @@ const useMessage = () => {
   }, [conversations, activeChat]);
 
   useEffect(() => {
-    const ws = new WebSocket('ws://localhost:8080/ws'+'?username=' + username);
+    const ws = new WebSocket('wss://chatting-microservice.onrender.com/ws'+'?username=' + username);
 
     ws.onmessage = (event) => {
       const messageData = JSON.parse(event.data);

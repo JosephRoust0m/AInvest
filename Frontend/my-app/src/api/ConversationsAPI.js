@@ -1,6 +1,6 @@
 class ConversationsAPI {
   constructor() {
-    this.baseURL = 'http://localhost:7000';
+    this.baseURL = 'https://ainvest-8zvd.onrender.com';
   }
 
   async saveConversations(conversations) {

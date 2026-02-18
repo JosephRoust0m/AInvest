@@ -1,6 +1,6 @@
 class AIAPI {
   constructor() {
-    this.aiBackendURL = 'https://ai-microservice-dthnb4cne0cpbscf.canadacentral-01.azurewebsites.net';
+    this.aiBackendURL = 'https://ai-service-tf3v.onrender.com';
   }
 
   async sendMessage(message, context = []) {
