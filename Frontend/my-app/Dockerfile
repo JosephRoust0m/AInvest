@@ -1,29 +1,25 @@
-# Use the official Node.js image for building the frontend
-FROM node:18-alpine as build
-
-# Set working directory
+# Stage 1 — Build the React app
+FROM node:18 AS build
 WORKDIR /app
 
-# Copy package.json and package-lock.json
 COPY package*.json ./
-
-# Install dependencies
 RUN npm install
 
-# Copy the rest of the application code
 COPY . .
-
-# Build the frontend app
 RUN npm run build
 
-# Use a lightweight web server to serve the built app
-FROM nginx:alpine
+# Stage 2 — Run the Express server to serve the built app
+FROM node:18
+WORKDIR /app
 
-# Copy built assets from the build stage
-COPY --from=build /app/dist /usr/share/nginx/html
+# Copy only what we need at runtime
+COPY package*.json ./
+RUN npm install --omit=dev
 
-# Expose port 80
-EXPOSE 80
+COPY --from=build /app/dist ./dist
+COPY server.js .
 
-# Start Nginx server
-CMD ["nginx", "-g", "daemon off;"]
+ENV PORT=3000
+EXPOSE 3000
+
+CMD ["node", "server.js"]
