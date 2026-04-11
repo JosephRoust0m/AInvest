@@ -1,18 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Grid, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import AdvisorCard from '../../components/AdvisorCard';
-import AdvisorsAPI from '../../api/AdvisorsAPI';
-import UsersAPI from '../../api/UsersAPI';
-import { setConversations, saveAllConversations } from '../../store/conversationsSlice';
+import ApiGatewayService from '../../api/ApiGatewayService';
+import { setConversations } from '../../store/conversationsSlice';
 import { setAdvisors } from '../../store/advisorsSlice';
 import { openChat, closeChat } from '../../store/activeChatsSlice';
 import AdvisorChatDialog from '../../components/AdvisorChatDialog';
 import useMessage from '../../model/useMessage';
-import useAuth from '../../model/useAuth';
+import useAuth_ from '../../model/useAuth';
 
 const PageWrapper = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -41,7 +41,7 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)', 
+  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
   flex: 1,
@@ -75,7 +75,6 @@ const EmptyState = styled(Box)(({ theme }) => ({
 }));
 
 const AdvisorConsultation = () => {
-  // Force update on global conversations-updated event
   const [, setForceUpdate] = useState(0);
   useEffect(() => {
     const forceUpdate = () => setForceUpdate(f => f + 1);
@@ -91,20 +90,16 @@ const AdvisorConsultation = () => {
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const message = useMessage();
   const conversations = useSelector(state => state.conversations.conversations);
-  //const refConversations = useRef(conversations);
-  const auth = useAuth();
-  
+  const auth = useAuth_();
+  const { getToken } = useAuth();
+
   useEffect(() => {
     const fetchAdvisors = async () => {
       try {
         setLoading(true);
-        const result = await AdvisorsAPI.fetchAdvisors();
-        if (result) {
-          dispatch(setAdvisors(result));
-        } else {
-          console.error('Failed to fetch advisors:', result.error);
-          dispatch(setAdvisors([]));
-        }
+        const token = await getToken();
+        const result = await ApiGatewayService.fetchAdvisors(token);
+        dispatch(setAdvisors(result || []));
       } catch (error) {
         console.error('Error fetching advisors:', error);
         dispatch(setAdvisors([]));
@@ -112,29 +107,28 @@ const AdvisorConsultation = () => {
         setLoading(false);
       }
     };
+
     const fetchConversationsWithAdvisors = async (username) => {
       try {
-        setLoading(true);
-        const result = await UsersAPI.fetchAllConversations(username);
+        const token = await getToken();
+        const result = await ApiGatewayService.fetchUserConversations(username, token);
         if (result && (result.data || Array.isArray(result))) {
-          for (const convo of result.data || result) {
-            let unreadCount = message.countUnreadMessages(convo);
-            convo.unreadCount = unreadCount;
+          const convos = result.data || result;
+          for (const convo of convos) {
+            convo.unreadCount = message.countUnreadMessages(convo);
           }
-          dispatch(setConversations(result.data || result));
+          dispatch(setConversations(convos));
         }
       } catch (error) {
         console.error('Error fetching conversations:', error);
-      } finally {
-        setLoading(false);
       }
     };
+
     fetchAdvisors();
     if (user?.username) {
       fetchConversationsWithAdvisors(user.username);
     }
   }, []);
-
 
   const handleAdvisorClick = (advisor) => {
     if (!user?.email) {
@@ -145,27 +139,17 @@ const AdvisorConsultation = () => {
     message.clearUnreadCount(conversationId);
     setSelectedAdvisor(advisor);
     setChatDialogOpen(true);
-    // Mark chat as open in Redux
     dispatch(openChat(advisor.username));
   };
-
 
   const handleCloseChatDialog = () => {
     setChatDialogOpen(false);
     if (selectedAdvisor?.username) {
       dispatch(closeChat(selectedAdvisor.username));
     }
-    // // Save all conversations to DB
-    // if (refConversations.current && refConversations.current.length > 0) {
-    //   dispatch(saveAllConversations(refConversations.current));
-    // }
     auth.setNewLogoutTime();
     setSelectedAdvisor(null);
-
   };
-  // useEffect(() => {
-  //   refConversations.current = conversations;
-  // }, [conversations]);
 
   return (
     <PageWrapper>
@@ -195,8 +179,8 @@ const AdvisorConsultation = () => {
           <AdvisorsGrid container spacing={3} sx={{ mt: 2 }}>
             {advisors.map((advisor) => (
               <Grid item xs={12} sm={8} md={6} lg={4} key={advisor.username}>
-                <AdvisorCard 
-                  advisor={advisor} 
+                <AdvisorCard
+                  advisor={advisor}
                   onClick={handleAdvisorClick}
                   conversations={conversations}
                 />
@@ -210,7 +194,6 @@ const AdvisorConsultation = () => {
           open={chatDialogOpen}
           onClose={handleCloseChatDialog}
         />
-
       </ContentContainer>
     </PageWrapper>
   );

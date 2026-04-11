@@ -1,126 +1,120 @@
-import React, { useState } from 'react';
-import { Typography, Box } from '@mui/material';
-import { styled } from '@mui/material/styles';
+import React, { useEffect } from 'react';
+import { SignIn, useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
+import { Box } from '@mui/material';
 import GradientBackground from '../../components/GradientBackground';
-import AuthCard from '../../components/AuthCard';
-import AuthToggle from '../../components/AuthToggle';
-import SignInForm from '../../components/SignInForm';
-import SignUpForm from '../../components/SignUpForm';
 import Footer from '../../components/Footer';
-import StyledAlert from '../../components/StyledAlert';
-import useAuth from '../../model/useAuth';
-import useMessage from '../../model/useMessage';
-import SignInAdvisorForm from '../../components/SignInAdvisorForm';
 
-const GradientTitle = styled(Typography)(({ theme }) => ({
-  color: '#ffffff',
-  fontWeight: 'bold',
-  marginBottom: theme.spacing(4),
-  textAlign: 'center',
-  textShadow: '0 2px 15px rgba(156, 39, 176, 0.4)',
-  animation: 'fadeInSlide 1.2s ease-out',
-  '@keyframes fadeInSlide': {
-    '0%': {
-      opacity: 0,
-      transform: 'translateY(-30px) scale(0.9)',
-    },
-    '60%': {
-      opacity: 0.8,
-      transform: 'translateY(5px) scale(1.02)',
-    },
-    '100%': {
-      opacity: 1,
-      transform: 'translateY(0) scale(1)',
-    },
+const clerkAppearance = {
+  variables: {
+    colorPrimary: '#9c27b0',
+    colorBackground: '#1a1a1a',
+    colorText: '#ffffff',
+    colorTextSecondary: 'rgba(255, 255, 255, 0.6)',
+    colorInputBackground: 'rgba(255, 255, 255, 0.07)',
+    colorInputText: '#ffffff',
+    colorNeutral: '#ffffff',
+    colorDanger: '#f44336',
+    borderRadius: '12px',
+    fontFamily: 'inherit',
   },
-}));
+  elements: {
+    // Outer card
+    card: {
+      background: 'rgba(255, 255, 255, 0.1)',
+      backdropFilter: 'blur(20px)',
+      border: '1px solid rgba(255, 255, 255, 0.15)',
+      boxShadow: '0 15px 35px rgba(0, 0, 0, 0.5)',
+    },
+    // Header
+    headerTitle: {
+      color: '#ffffff',
+      fontWeight: 'bold',
+    },
+    headerSubtitle: {
+      color: 'rgba(255, 255, 255, 0.6)',
+    },
+    // Form fields
+    formFieldLabel: {
+      color: 'rgba(255, 255, 255, 0.85)',
+    },
+    formFieldInput: {
+      background: 'rgba(255, 255, 255, 0.07)',
+      border: '1px solid rgba(156, 39, 176, 0.3)',
+      color: '#ffffff',
+      '&:focus': {
+        border: '1px solid rgba(156, 39, 176, 0.8)',
+        boxShadow: '0 0 0 2px rgba(156, 39, 176, 0.15)',
+      },
+    },
+    formFieldInputShowPasswordButton: {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+    // Primary action button
+    formButtonPrimary: {
+      background: 'linear-gradient(45deg, #7b1fa2, #9c27b0)',
+      color: '#ffffff',
+      fontWeight: 'bold',
+      '&:hover': {
+        background: 'linear-gradient(45deg, #9c27b0, #ba68c8)',
+      },
+    },
+    // Social / OAuth buttons
+    socialButtonsBlockButton: {
+      background: 'rgba(255, 255, 255, 0.07)',
+      border: '1px solid rgba(156, 39, 176, 0.25)',
+      color: '#ffffff',
+      '&:hover': {
+        background: 'rgba(156, 39, 176, 0.15)',
+      },
+    },
+    socialButtonsBlockButtonText: {
+      color: '#ffffff',
+    },
+    // Divider
+    dividerLine: {
+      background: 'rgba(255, 255, 255, 0.15)',
+    },
+    dividerText: {
+      color: 'rgba(255, 255, 255, 0.4)',
+    },
+    // Footer links ("Don't have an account? Sign up")
+    footerActionLink: {
+      color: '#ce93d8',
+      '&:hover': { color: '#f3e5f5' },
+    },
+    footerActionText: {
+      color: 'rgba(255, 255, 255, 0.5)',
+    },
+    // Identity preview (shown after email step)
+    identityPreviewText: { color: '#ffffff' },
+    identityPreviewEditButton: { color: '#ce93d8' },
+    // Error / alert messages
+    alertText: { color: '#ffffff' },
+    formFieldErrorText: { color: '#ef9a9a' },
+  },
+};
 
 const AuthPage = () => {
-  const [authMode, setAuthMode] = useState('signin');
-  const [alert, setAlert] = useState({ type: '', message: '' });
+  const { isSignedIn } = useAuth();
   const navigate = useNavigate();
-  const auth = useAuth();
-  //const message = useMessage();
 
-  const authOptions = [
-    { value: 'signin', label: 'Sign In' },
-    { value: 'signup', label: 'Sign Up' },
-    { value: 'advisor-signin', label: 'Advisor' },
-  ];
-
-  const handleModeChange = (event, newMode) => {
-    if (newMode !== null) {
-      setAuthMode(newMode);
-      setAlert({ type: '', message: '' }); // Clear alerts when switching
+  useEffect(() => {
+    if (isSignedIn) {
+      navigate('/chatbot');
     }
-  };
-
-  const handleSuccess = (result, message) => {
-    setAlert({ type: 'success', message });
-    console.log('Navigating to /chatbot...');
-    if (authMode === 'advisor-signin') {
-      result.userType = 'advisor';
-    } else {
-      result.userType = 'user';
-    }
-    auth.saveUser(result);
-    navigate('/chatbot');
-  };
-
-  const handleError = (message) => {
-    setAlert({ type: 'error', message });
-  };
-
-  const clearAlert = () => {
-    setAlert({ type: '', message: '' });
-  };
+  }, [isSignedIn, navigate]);
 
   return (
     <>
       <GradientBackground>
-        <AuthCard>
-
-          <AuthToggle
-            value={authMode}
-            onChange={handleModeChange}
-            options={authOptions}
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', p: 2 }}>
+          <SignIn
+            routing="hash"
+            forceRedirectUrl="/chatbot"
+            appearance={clerkAppearance}
           />
-
-          {alert.message && (
-            <StyledAlert 
-              severity={alert.type} 
-              onClose={clearAlert}
-            >
-              {alert.message}
-            </StyledAlert>
-          )}
-
-          {authMode === 'signin' ? (
-            <SignInForm onSuccess={handleSuccess} onError={handleError} />
-          ) : authMode === 'signup' ? (
-            <SignUpForm onSuccess={handleSuccess} onError={handleError} />
-          ) : authMode === 'advisor-signin' ? (
-            <SignInAdvisorForm onSuccess={handleSuccess} onError={handleError} advisor />
-          ) : null}
-
-          <Typography
-            variant="body2"
-            sx={{
-              marginTop: 3,
-              color: 'rgba(255, 255, 255, 0.8)',
-              fontSize: '14px',
-              textAlign: 'center',
-            }}
-          >
-            {authMode === 'signin' 
-              ? "Don't have an account? Click Sign Up above."
-              : authMode === 'signup' 
-                ? "Already have an account? Click Sign In above."
-                : "Are you an advisor? Click Advisor Sign In above."
-            }
-          </Typography>
-        </AuthCard>
+        </Box>
       </GradientBackground>
       <Footer />
     </>

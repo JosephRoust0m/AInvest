@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { Box, TextField, Button, Typography, Paper, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import AIAPI from '../../api/AIAPI';
+import { useAuth } from '@clerk/clerk-react';
+import ApiGatewayService from '../../api/ApiGatewayService';
 
 const PredictorContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
@@ -101,6 +102,7 @@ const StockPredictor = () => {
   const [timeframe, setTimeframe] = useState('');
   const [prediction, setPrediction] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { getToken } = useAuth();
 
   const timeframeOptions = [
     { value: '10', label: '10 Days' },
@@ -113,19 +115,16 @@ const StockPredictor = () => {
 
     setLoading(true);
     try {
-      const result = await AIAPI.predictStock(stockName, timeframe);
+      const token = await getToken();
+      const result = await ApiGatewayService.predictStock(stockName, timeframe, token);
 
-      if (result.success && result?.prediction?.average_price_prediction) {
-        setPrediction(result);
+      if (result?.average_price_prediction) {
+        setPrediction({ success: true, prediction: result });
       } else {
-        setPrediction({
-          error: "No data available for the given stock symbol and timeframe."
-        });
+        setPrediction({ error: "No data available for the given stock symbol and timeframe." });
       }
     } catch (error) {
-      setPrediction({
-        error: "An unexpected error occurred while predicting stock price."
-      });
+      setPrediction({ error: "Unable to get stock prediction at the moment. Please try again." });
     } finally {
       setLoading(false);
     }
@@ -137,7 +136,7 @@ const StockPredictor = () => {
         <Typography variant="h6" sx={{ color: 'white', marginBottom: 2 }}>
           Stock Price Prediction
         </Typography>
-        
+
         <StyledTextField
           fullWidth
           label="Stock Symbol (e.g., AAPL, GOOGL, TSLA)"
@@ -145,7 +144,7 @@ const StockPredictor = () => {
           onChange={(e) => setStockName(e.target.value)}
           placeholder="Enter stock symbol"
         />
-        
+
         <StyledFormControl fullWidth>
           <InputLabel>Analysis Period</InputLabel>
           <Select
@@ -159,14 +158,10 @@ const StockPredictor = () => {
                   border: '1px solid rgba(156, 39, 176, 0.3)',
                   '& .MuiMenuItem-root': {
                     color: 'white',
-                    '&:hover': {
-                      backgroundColor: 'rgba(156, 39, 176, 0.1)',
-                    },
+                    '&:hover': { backgroundColor: 'rgba(156, 39, 176, 0.1)' },
                     '&.Mui-selected': {
                       backgroundColor: 'rgba(156, 39, 176, 0.2)',
-                      '&:hover': {
-                        backgroundColor: 'rgba(156, 39, 176, 0.3)',
-                      },
+                      '&:hover': { backgroundColor: 'rgba(156, 39, 176, 0.3)' },
                     },
                   },
                 },
@@ -180,7 +175,7 @@ const StockPredictor = () => {
             ))}
           </Select>
         </StyledFormControl>
-        
+
         <PredictButton
           fullWidth
           onClick={handlePredict}
@@ -195,7 +190,7 @@ const StockPredictor = () => {
           <Typography variant="h6" sx={{ color: 'white', marginBottom: 2 }}>
             Prediction Results
           </Typography>
-          
+
           {loading ? (
             <Typography sx={{ color: 'rgba(156, 39, 176, 0.8)' }}>
               Analyzing market data and trends for {stockName.toUpperCase()}...
@@ -212,47 +207,42 @@ const StockPredictor = () => {
               <Typography variant="body1" sx={{ color: 'white', marginBottom: 1 }}>
                 <strong>Timeframe:</strong> {timeframeOptions.find(opt => opt.value === timeframe)?.label || `${timeframe} days`}
               </Typography>
-              
+
               {prediction?.prediction?.average_price_prediction && (
                 <Typography variant="body1" sx={{ color: 'white', marginBottom: 2 }}>
-                  <strong>Predicted Price in {timeframe} days :</strong> ${prediction.prediction.average_price_prediction.toFixed(2)}
+                  <strong>Predicted Price in {timeframe} days:</strong> ${prediction.prediction.average_price_prediction.toFixed(2)}
                 </Typography>
               )}
-              
+
               {prediction?.prediction?.action && (
-                <Box sx={{ 
-                  padding: 2, 
-                  background: prediction.prediction.action === 'Buy' 
-                    ? 'rgba(76, 175, 80, 0.1)' 
-                    : prediction.prediction.action === 'Sell' 
-                    ? 'rgba(244, 67, 54, 0.1)' 
-                    : 'rgba(156, 39, 176, 0.1)', 
+                <Box sx={{
+                  padding: 2,
+                  background: prediction.prediction.action === 'Buy'
+                    ? 'rgba(76, 175, 80, 0.1)'
+                    : prediction.prediction.action === 'Sell'
+                    ? 'rgba(244, 67, 54, 0.1)'
+                    : 'rgba(156, 39, 176, 0.1)',
                   borderRadius: 1,
-                  border: prediction.prediction.action === 'Buy' 
-                    ? '1px solid rgba(76, 175, 80, 0.3)' 
-                    : prediction.prediction.action === 'Sell' 
-                    ? '1px solid rgba(244, 67, 54, 0.3)' 
+                  border: prediction.prediction.action === 'Buy'
+                    ? '1px solid rgba(76, 175, 80, 0.3)'
+                    : prediction.prediction.action === 'Sell'
+                    ? '1px solid rgba(244, 67, 54, 0.3)'
                     : '1px solid rgba(156, 39, 176, 0.3)',
                   marginTop: 2
                 }}>
-                  <Typography variant="h6" sx={{ 
-                    color: prediction.prediction.action === 'Buy' 
-                      ? 'rgba(76, 175, 80, 0.9)' 
-                      : prediction.prediction.action === 'Sell' 
-                      ? 'rgba(244, 67, 54, 0.9)' 
-                      : 'rgba(156, 39, 176, 0.9)', 
+                  <Typography variant="h6" sx={{
+                    color: prediction.prediction.action === 'Buy'
+                      ? 'rgba(76, 175, 80, 0.9)'
+                      : prediction.prediction.action === 'Sell'
+                      ? 'rgba(244, 67, 54, 0.9)'
+                      : 'rgba(156, 39, 176, 0.9)',
                     marginBottom: 1,
                     textAlign: 'center',
                     fontWeight: 'bold'
                   }}>
                     Recommendation: {prediction.prediction.action}
                   </Typography>
-                  
-                  <Typography variant="body2" sx={{ 
-                    color: 'rgba(255, 255, 255, 0.8)', 
-                    textAlign: 'center',
-                    fontStyle: 'italic'
-                  }}>
+                  <Typography variant="body2" sx={{ color: 'rgba(255, 255, 255, 0.8)', textAlign: 'center', fontStyle: 'italic' }}>
                     {prediction.prediction.action === 'Buy' && 'Consider buying - positive outlook'}
                     {prediction.prediction.action === 'Sell' && 'Consider selling - negative outlook'}
                     {prediction.prediction.action === 'Hold' && 'Hold current position - neutral outlook'}

@@ -19,6 +19,16 @@ app.use(express.json());
 app.use(express.static("public"));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Reject requests that don't come from the API gateway
+app.use((req, res, next) => {
+    if (req.path === '/health') return next();
+    const secret = req.headers['x-gateway-secret'];
+    if (!secret || secret !== process.env.GATEWAY_SECRET) {
+        return res.status(403).json({ error: 'Access denied: requests must originate from the API gateway' });
+    }
+    next();
+});
+
 const PORT = process.env.PORT || 3000;
 const OPENAI_API_URL = 'https://api.openai.com/v1/chat/completions';
 const OPENAI_API_KEY = process.env.API_KEY;
@@ -56,7 +66,7 @@ Finance-related topics include (interpret precisely without being too long):
 
 When answering financial questions:
 - Provide accurate information with current market context.
-- Answer in 4 to 5 lines maximum and in a paragraphed format.
+- Answer in 10-15 lines maximum and in a paragraphed format.
 - Include relevant financial metrics and ratios when applicable
 - Explain financial concepts clearly
 

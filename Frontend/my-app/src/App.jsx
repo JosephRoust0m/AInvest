@@ -4,13 +4,13 @@ import FinancialChatbot from './pages/FinancialChatbot'
 import ProtectedRoute from './components/ProtectedRoute'
 import AdvisorContacts from './pages/AdvisorContacts'
 import AdvisorsConsultation from './pages/AdvisorsConsultation'
+import ClerkAuthSync from './components/ClerkAuthSync'
 import './App.css'
 
-
 function App() {
-
   return (
     <Router>
+      <ClerkAuthSync />
       <Routes>
         <Route path="/" element={<AuthPage />} />
         <Route path="/chatbot" element={
@@ -18,22 +18,16 @@ function App() {
             <FinancialChatbot />
           </ProtectedRoute>
         } />
-        <Route
-          path="/advisor-contacts"
-          element={
-            <ProtectedRoute>
-              <AdvisorContacts />
-            </ProtectedRoute>
-          }
-            />
-        <Route
-          path="/advisors-consultation"
-          element={
-            <ProtectedRoute>
-              <AdvisorsConsultation />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/advisor-contacts" element={
+          <ProtectedRoute>
+            <AdvisorContacts />
+          </ProtectedRoute>
+        } />
+        <Route path="/advisors-consultation" element={
+          <ProtectedRoute>
+            <AdvisorsConsultation />
+          </ProtectedRoute>
+        } />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </Router>

@@ -6,6 +6,14 @@ import os
 
 app = Flask(__name__)
 
+@app.before_request
+def require_gateway():
+    if request.path == '/health':
+        return None
+    secret = request.headers.get('X-Gateway-Secret')
+    if not secret or secret != os.environ.get('GATEWAY_SECRET'):
+        return jsonify({"error": "Access denied: requests must originate from the API gateway"}), 403
+
 def train_model(prices):
     # Convert price list into a DataFrame
     df = pd.DataFrame({'prices': prices})

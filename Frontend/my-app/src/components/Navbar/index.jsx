@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import Logo from '../Logo';
 import NavigationMenu from '../NavigationMenu';
 import useAuth from '../../model/useAuth';
-import AuthAPI from '../../api/AuthAPI';
+import ApiGatewayService from '../../api/ApiGatewayService';
 
 const StyledAppBar = styled(AppBar)(({ theme }) => ({
   background: 'linear-gradient(90deg, #0a0a0a 0%, #1a1a1a 50%, #2a1428 100%)',
@@ -18,18 +18,18 @@ const Navbar = () => {
   const { user, userType } = useSelector(state => state.auth);
   const navigate = useNavigate();
   const auth = useAuth();
+
   const handleSignOut = async () => {
     try {
-      // Call the correct logout timestamp API based on userType
+      const token = await auth.getToken();
       if (userType === 'advisor') {
-        await AuthAPI.sendLogoutTimestampAdvisor(user.username);
+        await ApiGatewayService.sendLogoutTimestampAdvisor(user.username, token);
       } else {
-        await AuthAPI.sendLogoutTimestamp(user.username);
+        await ApiGatewayService.sendLogoutTimestamp(user.username, token);
       }
     } catch (error) {
       console.error('Error during logout process:', error);
     }
-    // Clear Redux state (auth and conversations)
     await auth.logout();
     navigate('/');
   };
@@ -46,7 +46,7 @@ const Navbar = () => {
     <StyledAppBar position="sticky">
       <Toolbar>
         <Logo onClick={handleLogoClick} />
-        <NavigationMenu 
+        <NavigationMenu
           onNavigate={handleNavigation}
           onSignOut={handleSignOut}
         />

@@ -204,6 +204,28 @@ export class UserService {
     return conversations;
   }
 
+  async createUserFromWebhook({ clerkId, username, email }: { clerkId: string; username: string; email: string }) {
+    try {
+      // Idempotent: skip if user already exists by email
+      const existing = await db.queryOne('SELECT id FROM users WHERE email = $1', [email]);
+      if (existing) {
+        return existing;
+      }
+
+      const query = `
+        INSERT INTO users (email, username, password)
+        VALUES ($1, $2, $3)
+        RETURNING id, email, username
+      `;
+      // Password is not used for Clerk-managed users; store a sentinel value
+      const result = await db.queryOne(query, [email, username, `__clerk__${clerkId}`]);
+      return result;
+    } catch (error) {
+      console.error('Error creating user from webhook:', error);
+      throw error;
+    }
+  }
+
   validatePassword(password: string, confirmPassword?: string) {
     if (confirmPassword && password !== confirmPassword) {
       throw new Error('Passwords do not match');

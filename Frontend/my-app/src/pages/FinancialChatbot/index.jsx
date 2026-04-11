@@ -2,13 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import FeatureToggle from '../../components/FeatureToggle';
 import ChatMessagesArea from '../../components/ChatMessagesArea';
 import ChatInput from '../../components/ChatInput';
 import StockPredictor from '../../components/StockPredictor';
-import AIAPI from '../../api/AIAPI';
+import ApiGatewayService from '../../api/ApiGatewayService';
 
 
 const PageWrapper = styled(Box)(({ theme }) => ({
@@ -38,7 +39,7 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ChatContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)', // Account for navbar height only
+  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
   flex: 1,
@@ -64,13 +65,12 @@ const FeatureContent = styled(Box)(({ theme }) => ({
 
 const FinancialChatbot = () => {
   const { user } = useSelector(state => state.auth);
-  // Initialize expert messaging system on this page to ensure last logout time is fetched and stored
+  const { getToken } = useAuth();
   const [activeFeature, setActiveFeature] = useState('chatbot');
   const [messages, setMessages] = useState([]);
 
-  // Initialize greeting message with proper username
   useEffect(() => {
-    const username = user?.username || localStorage.getItem('username') || 'User';
+    const username = user?.username || 'User';
     setMessages([{
       id: 1,
       text: `Hello ${username}! I'm your AI Financial Assistant. I can help you with stock analysis, market insights, and investment advice. How can I assist you today?`,
@@ -79,6 +79,7 @@ const FinancialChatbot = () => {
       isTyping: false
     }]);
   }, [user?.username]);
+
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -112,9 +113,10 @@ const FinancialChatbot = () => {
     setLoading(true);
 
     try {
-      const result = await AIAPI.sendMessage(inputText, messages.slice(-5));
-      
-      const responseText = result.success ? result.response : result.error;
+      const token = await getToken();
+      const result = await ApiGatewayService.sendChatMessage(inputText, messages.slice(-5), token);
+
+      const responseText = result.response || "I'm sorry, I couldn't process your request at the moment. Please try again.";
       const botMessage = {
         id: Date.now() + 1,
         text: '',
@@ -125,30 +127,24 @@ const FinancialChatbot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      
-      // Type out the response character by character
+
       const typeResponse = () => {
         let currentText = '';
-        
         for (let i = 0; i < responseText.length; i++) {
           setTimeout(() => {
             currentText += responseText[i];
-            
-            
-            setMessages(prev => prev.map(msg => 
-              msg.id === botMessage.id 
+            setMessages(prev => prev.map(msg =>
+              msg.id === botMessage.id
                 ? { ...msg, text: currentText, isTyping: i < responseText.length - 1 }
                 : msg
             ));
-          }, i * 30); // Simplified timing
+          }, i * 30);
         }
       };
-      
       typeResponse();
     } catch (error) {
       console.error('Unexpected error:', error);
-      
-      const errorText = "An unexpected error occurred. Please try again.";
+      const errorText = "I can only answer finance related questions :)";
       const errorMessage = {
         id: Date.now() + 1,
         text: '',
@@ -157,26 +153,20 @@ const FinancialChatbot = () => {
         timestamp: new Date(),
         isTyping: true
       };
-
       setMessages(prev => [...prev, errorMessage]);
-      
-      // Type out the error message
       const typeError = () => {
         let currentText = '';
-        
         for (let i = 0; i < errorText.length; i++) {
           setTimeout(() => {
             currentText += errorText[i];
-            
-            setMessages(prev => prev.map(msg => 
-              msg.id === errorMessage.id 
+            setMessages(prev => prev.map(msg =>
+              msg.id === errorMessage.id
                 ? { ...msg, text: currentText, isTyping: i < errorText.length - 1 }
                 : msg
             ));
-          }, i * 30); // Simplified timing
+          }, i * 30);
         }
       };
-      
       typeError();
     } finally {
       setLoading(false);
@@ -201,11 +191,10 @@ const FinancialChatbot = () => {
           <FeatureContent>
             {activeFeature === 'chatbot' ? (
               <>
-                <ChatMessagesArea 
-                  messages={messages} 
-                  loading={loading} 
+                <ChatMessagesArea
+                  messages={messages}
+                  loading={loading}
                 />
-
                 <ChatInput
                   inputText={inputText}
                   onInputChange={handleInputChange}

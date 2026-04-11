@@ -1,5 +1,3 @@
-import ConversationsAPI from '../api/ConversationsAPI';
-
 import { createSlice } from '@reduxjs/toolkit'
 
 const initialState = {
@@ -16,16 +14,8 @@ const conversationsSlice = createSlice({
     clearConversations: (state) => {
       state.conversations = []
     },
-    saveAllConversations: async (conversations) => {
-    try {
-      const result = await ConversationsAPI.saveConversations(conversations);
-      return result;
-    } catch (error) {
-      console.error('Save conversations error:', error);
-    }
-    },
   },
 })
 
-export const { setConversations, clearConversations, saveAllConversations } = conversationsSlice.actions
+export const { setConversations, clearConversations } = conversationsSlice.actions
 export default conversationsSlice.reducer

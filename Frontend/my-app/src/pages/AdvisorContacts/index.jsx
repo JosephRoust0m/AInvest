@@ -1,16 +1,17 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { Box, Grid, CircularProgress, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
+import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import UserCard from '../../components/UserCard';
-import AdvisorsAPI from '../../api/AdvisorsAPI';
-import { setConversations, saveAllConversations } from '../../store/conversationsSlice';
-import { openChat, closeChat, clearActiveChats } from '../../store/activeChatsSlice';
+import ApiGatewayService from '../../api/ApiGatewayService';
+import { setConversations } from '../../store/conversationsSlice';
+import { openChat, closeChat } from '../../store/activeChatsSlice';
 import UserChatDialog from '../../components/UserChatDialog';
 import useMessage from '../../model/useMessage';
-import useAuth from '../../model/useAuth';
+import useAuth_ from '../../model/useAuth';
 
 
 const PageWrapper = styled(Box)(({ theme }) => ({
@@ -40,7 +41,7 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)', // Account for navbar height
+  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
   flex: 1,
@@ -74,7 +75,6 @@ const EmptyState = styled(Box)(({ theme }) => ({
 }));
 
 const AdvisorContacts = () => {
-  // Force update on global conversations-updated event
   const [, setForceUpdate] = useState(0);
   useEffect(() => {
     const forceUpdate = () => setForceUpdate(f => f + 1);
@@ -82,15 +82,14 @@ const AdvisorContacts = () => {
     return () => window.removeEventListener('conversations-updated', forceUpdate);
   }, []);
 
-    
   const dispatch = useDispatch();
   const advisor = useSelector(state => state.auth.user);
-
   const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
-  const message = useMessage ();
-  const auth = useAuth();
+  const message = useMessage();
+  const auth = useAuth_();
+  const { getToken } = useAuth();
   const conversations = useSelector(state => state.conversations.conversations);
 
   const handleUserClick = (user) => {
@@ -102,7 +101,6 @@ const AdvisorContacts = () => {
     message.clearUnreadCount(conversationId);
     setSelectedUser(user);
     setChatDialogOpen(true);
-    // Mark chat as open in Redux
     dispatch(openChat(user.username));
   };
 
@@ -111,17 +109,16 @@ const AdvisorContacts = () => {
       setLoading(true);
       try {
         if (advisor?.username) {
-          const result = await AdvisorsAPI.fetchAllConversations(advisor.username);
+          const token = await getToken();
+          const result = await ApiGatewayService.fetchAdvisorConversations(advisor.username, token);
           if (result && (result.data || Array.isArray(result))) {
-            for (const convo of result.data || result) {
-              let unreadCount = message.countUnreadMessages(convo);
-              convo.unreadCount = unreadCount;
+            const convos = result.data || result;
+            for (const convo of convos) {
+              convo.unreadCount = message.countUnreadMessages(convo);
             }
-            dispatch(setConversations(result.data || result));
-            //refConversations.current = result.data || result;
+            dispatch(setConversations(convos));
           }
         }
-
       } catch (error) {
         console.error('Error loading data:', error);
       } finally {
@@ -131,14 +128,15 @@ const AdvisorContacts = () => {
     loadAllData();
   }, [advisor?.username]);
 
-  const users = conversations === undefined ? [] : conversations.length > 0 ? conversations.map(conv => ({ username: conv.user_username })) : [];
+  const users = conversations === undefined ? [] : conversations.length > 0
+    ? conversations.map(conv => ({ username: conv.user_username }))
+    : [];
 
   const handleCloseChatDialog = () => {
     setChatDialogOpen(false);
     if (selectedUser?.username) {
       dispatch(closeChat(selectedUser.username));
-    } 
-
+    }
     auth.setNewLogoutTime();
     setSelectedUser(null);
   };
@@ -171,8 +169,8 @@ const AdvisorContacts = () => {
           <UsersGrid container spacing={3} sx={{ mt: 2 }}>
             {users.map((user) => (
               <Grid item xs={12} sm={6} md={4} lg={3} key={user.username}>
-                <UserCard 
-                  user={user} 
+                <UserCard
+                  user={user}
                   onClick={handleUserClick}
                   conversations={conversations}
                 />
@@ -186,7 +184,6 @@ const AdvisorContacts = () => {
           open={chatDialogOpen}
           onClose={handleCloseChatDialog}
         />
-
       </ContentContainer>
     </PageWrapper>
   );

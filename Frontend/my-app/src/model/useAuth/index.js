@@ -1,32 +1,27 @@
 import { useDispatch, useSelector } from "react-redux";
-import { loginSuccess, logout as logout_, setLastLogout } from '../../store/authSlice';
-import { saveAllConversations } from '../../store/conversationsSlice';
+import { useAuth as useClerkAuth, useClerk } from '@clerk/clerk-react';
+import { logout as logout_, setLastLogout } from '../../store/authSlice';
+
 const useAuth = () => {
   const dispatch = useDispatch();
   const authState = useSelector((state) => state.auth);
-  const state = useSelector((state) => state);
+  const { getToken } = useClerkAuth();
+  const { signOut: clerkSignOut } = useClerk();
 
-  const saveUser = (userData) => {
-    const username = userData?.user.username;
-    const email = userData?.user.email;
-    const { token, userType } = userData;
-    dispatch(loginSuccess({
-        username, email, token, userType
-    }));
-   }
-
-   const setNewLogoutTime = () => {
+  const setNewLogoutTime = () => {
     dispatch(setLastLogout(Date.now()));
-   }
-   const logout = async () => {
+  };
+
+  const logout = async () => {
     dispatch(logout_());
-   }
+    await clerkSignOut();
+  };
 
   return {
     authState,
     setNewLogoutTime,
     logout,
-    saveUser,
+    getToken,
   };
 };
 
