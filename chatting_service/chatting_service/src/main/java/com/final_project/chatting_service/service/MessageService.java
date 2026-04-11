@@ -1,7 +1,9 @@
 package com.final_project.chatting_service.service;
 
 import com.final_project.chatting_service.dto.MessageRequestDTO;
-import java.net.http.HttpHeaders;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
