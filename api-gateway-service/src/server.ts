@@ -1,10 +1,12 @@
 import express from 'express';
 import cors from 'cors';
 import { createClerkClient } from '@clerk/backend';
+import { clerkMiddleware } from '@clerk/express'
 import { getAuth } from '@clerk/express';
 import 'dotenv/config';
 
 const app = express();
+app.use(clerkMiddleware());
 const PORT = process.env.PORT || 4000;
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
@@ -27,10 +29,8 @@ const authenticate = async (
     return res.status(401).json({ message: 'No authorization token provided' });
   }
 
-  const token = authHeader.split(' ')[1];
-
   try {
-// You get userId from JWT
+
   const { userId } = getAuth(req)
 
 
