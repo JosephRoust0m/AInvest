@@ -338,6 +338,9 @@ async function advice(stockname: string, period: string | number) {
         }
 
         const ML_score = await axios.post(STOCK_PREDICTOR_URL + '/analyze', {
+                headers: {
+                'X-Gateway-Secret': process.env.GATEWAY_SECRET || '',
+                },
             information: prices
         });
         console.log("News price scores:", ML_score.data.score_prediction);
@@ -375,6 +378,9 @@ async function advice(stockname: string, period: string | number) {
             }
             
             const ML_news_score = await axios.post(STOCK_PREDICTOR_URL + '/analyze', {
+                headers: {
+                'X-Gateway-Secret': process.env.GATEWAY_SECRET || '',
+                },
                 information: news
             });
             console.log("News sentiment scores:", ML_news_score.data.score_prediction);
