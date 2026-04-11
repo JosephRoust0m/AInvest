@@ -6,7 +6,7 @@ import { getAuth } from '@clerk/express';
 import 'dotenv/config';
 
 const app = express();
-app.use(clerkMiddleware());
+
 const PORT = process.env.PORT || 4000;
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
@@ -17,6 +17,7 @@ const CHAT_SERVICE_URL = process.env.CHAT_SERVICE_URL || 'https://chatting-micro
 
 app.use(cors());
 app.use(express.json());
+app.use(clerkMiddleware());
 
 // Auth middleware: verifies Clerk JWT, fetches user, attaches to request
 const authenticate = async (
