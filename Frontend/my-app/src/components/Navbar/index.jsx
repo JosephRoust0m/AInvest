@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
-import { AppBar, Toolbar } from '@mui/material';
+import { AppBar, Toolbar, Backdrop, CircularProgress, Typography, Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../Logo';
@@ -18,8 +18,10 @@ const Navbar = () => {
   const { user, userType } = useSelector(state => state.auth);
   const navigate = useNavigate();
   const auth = useAuth();
+  const [loggingOut, setLoggingOut] = useState(false);
 
   const handleSignOut = async () => {
+    setLoggingOut(true);
     try {
       const token = await auth.getToken();
       if (userType === 'advisor') {
@@ -43,15 +45,21 @@ const Navbar = () => {
   };
 
   return (
-    <StyledAppBar position="sticky">
-      <Toolbar>
-        <Logo onClick={handleLogoClick} />
-        <NavigationMenu
-          onNavigate={handleNavigation}
-          onSignOut={handleSignOut}
-        />
-      </Toolbar>
-    </StyledAppBar>
+    <>
+      <StyledAppBar position="sticky">
+        <Toolbar>
+          <Logo onClick={handleLogoClick} />
+          <NavigationMenu
+            onNavigate={handleNavigation}
+            onSignOut={handleSignOut}
+          />
+        </Toolbar>
+      </StyledAppBar>
+      <Backdrop open={loggingOut} sx={{ zIndex: 9999, flexDirection: 'column', gap: 2, bgcolor: 'rgba(0,0,0,0.75)' }}>
+        <CircularProgress sx={{ color: '#9c27b0' }} size={52} />
+        <Typography sx={{ color: '#fff', letterSpacing: 1 }}>Signing out...</Typography>
+      </Backdrop>
+    </>
   );
 };
 

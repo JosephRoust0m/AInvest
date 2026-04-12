@@ -1,7 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { SignIn, useAuth } from '@clerk/clerk-react';
 import { useNavigate } from 'react-router-dom';
-import { Box } from '@mui/material';
+import { Box, Backdrop, CircularProgress, Typography } from '@mui/material';
 import GradientBackground from '../../components/GradientBackground';
 import Footer from '../../components/Footer';
 
@@ -98,9 +98,11 @@ const clerkAppearance = {
 const AuthPage = () => {
   const { isSignedIn } = useAuth();
   const navigate = useNavigate();
+  const [signingIn, setSigningIn] = useState(false);
 
   useEffect(() => {
     if (isSignedIn) {
+      setSigningIn(true);
       navigate('/chatbot');
     }
   }, [isSignedIn, navigate]);
@@ -117,6 +119,10 @@ const AuthPage = () => {
         </Box>
       </GradientBackground>
       <Footer />
+      <Backdrop open={signingIn} sx={{ zIndex: 9999, flexDirection: 'column', gap: 2, bgcolor: 'rgba(0,0,0,0.75)' }}>
+        <CircularProgress sx={{ color: '#9c27b0' }} size={52} />
+        <Typography sx={{ color: '#fff', letterSpacing: 1 }}>Signing in...</Typography>
+      </Backdrop>
     </>
   );
 };
