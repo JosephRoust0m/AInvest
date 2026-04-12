@@ -22,7 +22,7 @@ const useMessage = () => {
 
   useEffect(() => {
     if (!username) return;
-    const ws = new WebSocket('wss://chatting-microservice.onrender.com/ws' + '?username=' + username);
+    const ws = new WebSocket('wss://ainvest-production-9f95.up.railway.app/ws' + '?username=' + username);
 
     ws.onmessage = (event) => {
       const messageData = JSON.parse(event.data);
