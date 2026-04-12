@@ -71,6 +71,11 @@ const forwardRequest = async (
     }
 
     const response = await fetch(targetUrl, options);
+    const contentType = response.headers.get('content-type') || '';
+    if (!contentType.includes('application/json')) {
+      const text = await response.text();
+      return res.status(response.status).json({ message: text || 'Downstream service error' });
+    }
     const data = await response.json();
     res.status(response.status).json(data);
   } catch (error) {
