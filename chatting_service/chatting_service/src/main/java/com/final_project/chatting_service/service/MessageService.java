@@ -11,6 +11,7 @@ import org.springframework.web.client.RestTemplate;
 public class MessageService {
 
     private final RestTemplate restTemplate;
+    private final String DB_SERVICE_URL = System.getenv("DB_SERVICE_URL");
 
     public MessageService(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
@@ -24,7 +25,7 @@ public class MessageService {
         HttpEntity<MessageRequestDTO> entity = new HttpEntity<>(messageRequestDTO, headers);
         try {
             restTemplate.postForObject(
-                    "scintillating-caring-production-2d86.up.railway.app/api/save-message",
+                    DB_SERVICE_URL+"/api/save-message",
                     entity,
                     Void.class
             );

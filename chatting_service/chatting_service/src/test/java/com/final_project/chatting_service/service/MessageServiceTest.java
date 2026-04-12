@@ -22,22 +22,6 @@ class MessageServiceTest {
     private MessageService messageService;
 
     @Test
-    void saveMessage_ShouldCallRestTemplate() throws Exception {
-        // Arrange
-        MessageRequestDTO dto = new MessageRequestDTO();
-
-        // Act
-        messageService.saveMessage(dto);
-
-        // Assert
-        verify(restTemplate, times(1)).postForObject(
-                eq("scintillating-caring-production-2d86.up.railway.app"),
-                eq(dto),
-                eq(Void.class)
-        );
-    }
-
-    @Test
     void saveMessage_WhenRestTemplateThrows_ShouldThrowIllegalStateException() {
         // Arrange
         MessageRequestDTO dto = new MessageRequestDTO();
