@@ -11,9 +11,9 @@ const PORT = process.env.PORT || 4000;
 
 const clerk = createClerkClient({ secretKey: process.env.CLERK_SECRET_KEY! });
 
-const DB_SERVICE_URL = process.env.DB_SERVICE_URL || 'https://ainvest-8zvd.onrender.com';
-const AI_SERVICE_URL = process.env.AI_SERVICE_URL || 'https://ai-service-tf3v.onrender.com';
-const CHAT_SERVICE_URL = process.env.CHAT_SERVICE_URL || 'https://chatting-microservice.onrender.com';
+const DB_SERVICE_URL = process.env.DB_SERVICE_URL;
+const AI_SERVICE_URL = process.env.AI_SERVICE_URL;
+const CHAT_SERVICE_URL = process.env.CHAT_SERVICE_URL;
 
 app.use(cors());
 app.use(express.json());

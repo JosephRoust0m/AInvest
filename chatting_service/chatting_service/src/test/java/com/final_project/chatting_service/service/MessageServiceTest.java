@@ -31,7 +31,7 @@ class MessageServiceTest {
 
         // Assert
         verify(restTemplate, times(1)).postForObject(
-                eq("https://ainvest-8zvd.onrender.com"),
+                eq("scintillating-caring-production-2d86.up.railway.app"),
                 eq(dto),
                 eq(Void.class)
         );

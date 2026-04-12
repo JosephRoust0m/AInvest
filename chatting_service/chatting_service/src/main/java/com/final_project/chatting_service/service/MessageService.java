@@ -24,7 +24,7 @@ public class MessageService {
         HttpEntity<MessageRequestDTO> entity = new HttpEntity<>(messageRequestDTO, headers);
         try {
             restTemplate.postForObject(
-                    "https://ainvest-8zvd.onrender.com/api/save-message",
+                    "scintillating-caring-production-2d86.up.railway.app/api/save-message",
                     entity,
                     Void.class
             );

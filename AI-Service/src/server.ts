@@ -38,7 +38,7 @@ const config = {
         'Authorization': `Bearer ` + process.env.POLYGON_API_KEY
     }
 };
-const STOCK_PREDICTOR_URL = "https://stock-predictor-zkz0.onrender.com";
+const STOCK_PREDICTOR_URL = process.env.STOCK_PREDICTOR_URL;
 
 const FINANCIAL_SYSTEM_PROMPT = `You are a specialized Financial AI Assistant focused on finance, investing, and market-related topics.
 
