@@ -102,7 +102,6 @@ const AuthPage = () => {
 
   useEffect(() => {
     if (isSignedIn) {
-      setSigningIn(true);
       navigate('/chatbot');
     }
   }, [isSignedIn, navigate]);
@@ -115,6 +114,7 @@ const AuthPage = () => {
             routing="hash"
             forceRedirectUrl="/chatbot"
             appearance={clerkAppearance}
+            onSignIn={() => setSigningIn(true)}
           />
         </Box>
       </GradientBackground>

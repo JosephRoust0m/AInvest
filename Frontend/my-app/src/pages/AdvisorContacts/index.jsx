@@ -91,6 +91,17 @@ const AdvisorContacts = () => {
   const auth = useAuth_();
   const { getToken } = useAuth();
   const conversations = useSelector(state => state.conversations.conversations);
+  const lastLogout = useSelector(state => state.auth.user?.lastLogout);
+
+  // Recalculate unread counts once lastLogout is fetched from DB after sign-in
+  useEffect(() => {
+    if (!lastLogout || conversations.length === 0) return;
+    const updated = conversations.map(convo => ({
+      ...convo,
+      unreadCount: message.countUnreadMessages(convo),
+    }));
+    dispatch(setConversations(updated));
+  }, [lastLogout]);
 
   const handleUserClick = (user) => {
     if (!user?.username) {
