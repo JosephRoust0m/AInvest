@@ -86,12 +86,30 @@ app.get('/api/advisor', requireGateway, async (req, res) => {
   }
 });
 
+app.get('/api/user/last-logout', requireGateway, async (req, res) => {
+  try {
+    const result = await userService.fetchLastLogout(String(req.query.username));
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to fetch last logout' });
+  }
+});
+
 app.get('/api/user/conversations', requireGateway, async (req, res) => {
   try {
     const users = await userService.fetchUsersConversation(String(req.query.username));
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to fetch users' });
+  }
+});
+
+app.get('/api/advisor/last-logout', requireGateway, async (req, res) => {
+  try {
+    const result = await advisorService.fetchLastLogout(String(req.query.username));
+    res.json(result);
+  } catch (error) {
+    res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to fetch last logout' });
   }
 });
 

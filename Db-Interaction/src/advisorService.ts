@@ -88,6 +88,11 @@ export class AdvisorService {
     }
   }
 
+  async fetchLastLogout(username: string): Promise<{ lastLogout: Date | null }> {
+    const advisor = await db.queryOne('SELECT last_logout FROM advisors WHERE username = $1', [username]);
+    return { lastLogout: advisor?.last_logout ?? null };
+  }
+
   async fetchAdvisors(): Promise<Advisor[]> {
     const query = 'SELECT * FROM advisors';
     const result = await db.queryRows(query);

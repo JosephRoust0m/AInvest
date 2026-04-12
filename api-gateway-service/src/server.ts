@@ -100,6 +100,11 @@ app.get('/api/advisor', authenticate, (req, res) => {
   forwardRequest(`${DB_SERVICE_URL}/api/advisor`, req, res);
 });
 
+app.get('/api/advisor/last-logout', authenticate, (req, res) => {
+  const username = req.query.username;
+  forwardRequest(`${DB_SERVICE_URL}/api/advisor/last-logout?username=${username}`, req, res);
+});
+
 app.get('/api/advisor/conversations', authenticate, (req, res) => {
   const username = req.query.username;
   forwardRequest(`${DB_SERVICE_URL}/api/advisor/conversations?username=${username}`, req, res);
@@ -112,6 +117,11 @@ app.post('/api/advisor/logout-timestamp', authenticate, (req, res) => {
 app.get('/api/user/conversations', authenticate, (req, res) => {
   const username = req.query.username;
   forwardRequest(`${DB_SERVICE_URL}/api/user/conversations?username=${username}`, req, res);
+});
+
+app.get('/api/user/last-logout', authenticate, (req, res) => {
+  const username = req.query.username;
+  forwardRequest(`${DB_SERVICE_URL}/api/user/last-logout?username=${username}`, req, res);
 });
 
 app.post('/api/user/logout-timestamp', authenticate, (req, res) => {

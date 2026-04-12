@@ -198,6 +198,11 @@ export class UserService {
     }
   }
 
+  async fetchLastLogout(username: string): Promise<{ lastLogout: Date | null }> {
+    const user = await db.queryOne('SELECT last_logout FROM users WHERE username = $1', [username]);
+    return { lastLogout: user?.last_logout ?? null };
+  }
+
   async fetchUsersConversation(username: string): Promise<User[]> {
     const query = 'SELECT * FROM conversations Where user_username=$1';
     const conversations = await db.queryMany(query, [username]);

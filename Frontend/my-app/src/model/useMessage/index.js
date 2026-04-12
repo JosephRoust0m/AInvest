@@ -9,7 +9,7 @@ const useMessage = () => {
   const conversations = useSelector(state => state.conversations.conversations);
   const username = useSelector(state => state.auth.user?.username);
   const userType = useSelector(state => state.auth.userType);
-  const lastLogout = useSelector(state => state.auth.lastLogout);
+  const lastLogout = useSelector(state => state.auth.user?.lastLogout);
   const activeChat = useSelector(state => state.activeChats.activeChats);
   const activeChatSender = useRef(activeChat);
   const refConversations = useRef(conversations);

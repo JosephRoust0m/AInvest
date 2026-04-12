@@ -40,6 +40,13 @@ class ApiGatewayService {
     return this._request(`/api/user/conversations?username=${encodeURIComponent(username)}`, 'GET', null, token);
   }
 
+  async fetchLastLogout(username, userType, token) {
+    const path = userType === 'advisor'
+      ? `/api/advisor/last-logout?username=${encodeURIComponent(username)}`
+      : `/api/user/last-logout?username=${encodeURIComponent(username)}`;
+    return this._request(path, 'GET', null, token);
+  }
+
   async saveConversations(conversations, token) {
     return this._request('/api/conversations/save', 'POST', { conversations }, token);
   }
