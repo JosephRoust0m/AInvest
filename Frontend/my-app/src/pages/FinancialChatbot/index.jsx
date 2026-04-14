@@ -14,6 +14,7 @@ import ApiGatewayService from '../../api/ApiGatewayService';
 
 const PageWrapper = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
+  '@supports (min-height: 100dvh)': { minHeight: '100dvh' },
   width: '100%',
   background: 'linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #2a1428 70%, #000000 100%)',
   margin: 0,
