@@ -47,7 +47,7 @@ const Navbar = () => {
   return (
     <>
       <StyledAppBar position="sticky">
-        <Toolbar>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
           <Logo onClick={handleLogoClick} />
           <NavigationMenu
             onNavigate={handleNavigation}

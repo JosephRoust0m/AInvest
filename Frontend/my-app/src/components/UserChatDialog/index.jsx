@@ -1,15 +1,17 @@
 import React, { useState, useRef, useEffect, use } from 'react';
 import { useSelector } from 'react-redux';
-import { 
-  Dialog, 
-  DialogTitle, 
-  DialogContent, 
-  Box, 
-  Typography, 
+import {
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  Box,
+  Typography,
   IconButton,
   Paper,
   Avatar,
-  Fade
+  Fade,
+  useMediaQuery,
+  useTheme
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
@@ -27,6 +29,14 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
     width: '90vw',
     height: '80vh',
     margin: theme.spacing(2),
+    [theme.breakpoints.down('sm')]: {
+      borderRadius: 0,
+      margin: 0,
+      width: '100vw',
+      height: '100dvh',
+      maxWidth: '100vw',
+      maxHeight: '100dvh',
+    },
   },
 }));
 
@@ -78,10 +88,15 @@ const ChatContent = styled(DialogContent)(({ theme }) => ({
   padding: 0,
   display: 'flex',
   flexDirection: 'column',
-  height: 'calc(80vh - 80px)', // Subtract header height
+  height: 'calc(80vh - 80px)',
+  [theme.breakpoints.down('sm')]: {
+    height: 'calc(100dvh - 72px)',
+  },
 }));
 
-const UserChatDialog = ({  selectedUser, open, onClose }) => {
+const UserChatDialog = ({ selectedUser, open, onClose }) => {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   // Force update on global conversations-updated event
   useEffect(() => {
     const forceUpdate = () => setInputText(inputText => inputText);
@@ -152,6 +167,7 @@ const UserChatDialog = ({  selectedUser, open, onClose }) => {
       onClose={handleClose}
       maxWidth="md"
       fullWidth
+      fullScreen={fullScreen}
     >
       <DialogHeader>
         <UserInfo>

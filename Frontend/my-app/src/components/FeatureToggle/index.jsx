@@ -23,11 +23,16 @@ const StyledToggleButtonGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 
 const StyledToggleButton = styled(ToggleButton)(({ theme }) => ({
   color: 'rgba(255, 255, 255, 0.7)',
-  padding: theme.spacing(1, 3),
+  padding: theme.spacing(1, 2),
   textTransform: 'none',
   fontWeight: 500,
   transition: 'all 0.3s ease',
-  minWidth: '140px',
+  minWidth: '100px',
+  [theme.breakpoints.down('sm')]: {
+    minWidth: 0,
+    padding: theme.spacing(1, 1.5),
+    fontSize: '0.85rem',
+  },
   '&:hover': {
     background: 'rgba(156, 39, 176, 0.1)',
     color: 'rgba(255, 255, 255, 0.9)',

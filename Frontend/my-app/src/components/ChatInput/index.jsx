@@ -51,12 +51,12 @@ const SendButton = styled(IconButton)(({ theme }) => ({
   },
 }));
 
-const ChatInput = ({ 
-  inputText, 
-  onInputChange, 
-  onSend, 
-  loading, 
-  placeholder = "Ask about stocks, market trends, or investment advice..." 
+const ChatInput = ({
+  inputText,
+  onInputChange,
+  onSend,
+  loading,
+  placeholder = "Ask about stocks, markets, or investment advice..."
 }) => {
   const handleKeyPress = (event) => {
     if (event.key === 'Enter' && !event.shiftKey) {
