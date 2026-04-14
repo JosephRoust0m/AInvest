@@ -41,9 +41,9 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
+  paddingBottom: theme.spacing(6),
   flex: 1,
   alignItems: 'center',
   justifyContent: 'flex-start',
@@ -177,9 +177,9 @@ const AdvisorContacts = () => {
             </Typography>
           </EmptyState>
         ) : (
-          <UsersGrid container spacing={3} sx={{ mt: 2 }}>
+          <UsersGrid container spacing={3} sx={{ mt: 2, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
             {users.map((user) => (
-              <Grid item xs={12} sm={6} md={4} lg={3} key={user.username}>
+              <Grid item xs={10} sm={6} md={4} lg={3} key={user.username}>
                 <UserCard
                   user={user}
                   onClick={handleUserClick}

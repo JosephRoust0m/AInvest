@@ -41,9 +41,9 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ContentContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
+  paddingBottom: theme.spacing(6),
   flex: 1,
   alignItems: 'center',
   justifyContent: 'flex-start',
@@ -187,9 +187,9 @@ const AdvisorConsultation = () => {
             </Typography>
           </EmptyState>
         ) : (
-          <AdvisorsGrid container spacing={3} sx={{ mt: 2 }}>
+          <AdvisorsGrid container spacing={3} sx={{ mt: 2, justifyContent: { xs: 'center', sm: 'flex-start' } }}>
             {advisors.map((advisor) => (
-              <Grid item xs={12} sm={8} md={6} lg={4} key={advisor.username}>
+              <Grid item xs={10} sm={8} md={6} lg={4} key={advisor.username}>
                 <AdvisorCard
                   advisor={advisor}
                   onClick={handleAdvisorClick}

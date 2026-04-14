@@ -10,6 +10,9 @@ const StyledPageTitle = styled(Typography)(({ theme }) => ({
   WebkitBackgroundClip: 'text',
   WebkitTextFillColor: 'transparent',
   fontWeight: 'bold',
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '1.4rem',
+  },
 }));
 
 const PageTitle = ({ children, variant = "h4", timeout = 800, ...props }) => {

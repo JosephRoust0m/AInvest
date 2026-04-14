@@ -40,6 +40,10 @@ const SendButton = styled(IconButton)(({ theme }) => ({
   color: 'white',
   background: 'linear-gradient(135deg, #2a1428 0%, #1a1a1a 100%)',
   border: '1px solid rgba(156, 39, 176, 0.3)',
+  width: 44,
+  height: 44,
+  flexShrink: 0,
+  alignSelf: 'flex-end',
   '&:hover': {
     background: 'linear-gradient(135deg, #3a1a38 0%, #2a2a2a 100%)',
     borderColor: 'rgba(156, 39, 176, 0.5)',

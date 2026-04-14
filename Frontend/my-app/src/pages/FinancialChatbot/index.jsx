@@ -39,9 +39,9 @@ const PageWrapper = styled(Box)(({ theme }) => ({
 const ChatContainer = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
-  minHeight: 'calc(100vh - 64px)',
   width: '100%',
   padding: theme.spacing(2),
+  paddingBottom: theme.spacing(4),
   flex: 1,
   alignItems: 'center',
   justifyContent: 'flex-start',

@@ -3,16 +3,21 @@ import { Box, IconButton, Drawer, List, ListItemButton, ListItemText, Divider, u
 import MenuIcon from '@mui/icons-material/Menu';
 import NavButton from '../NavButton';
 import { useSelector } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 const NavigationMenu = ({ onNavigate, onSignOut }) => {
   const userType = useSelector(state => state.auth.userType);
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const location = useLocation();
 
   const advisorLink = { label: 'Contacts', path: '/advisor-contacts' };
   const userLink    = { label: 'Advisors', path: '/advisors-consultation' };
   const secondLink  = userType === 'advisor' ? advisorLink : userLink;
+
+  const isChatbotActive = location.pathname === '/chatbot';
+  const isSecondActive = location.pathname === secondLink.path;
 
   const handleNav = (path) => {
     setDrawerOpen(false);
@@ -49,14 +54,32 @@ const NavigationMenu = ({ onNavigate, onSignOut }) => {
           }}
         >
           <List sx={{ pt: 2 }}>
-            <ListItemButton onClick={() => handleNav('/chatbot')}
-              sx={{ color: 'white', '&:hover': { background: 'rgba(156,39,176,0.15)' } }}>
+            <ListItemButton
+              selected={isChatbotActive}
+              onClick={() => handleNav('/chatbot')}
+              sx={{
+                color: 'white',
+                borderLeft: isChatbotActive ? '3px solid rgba(156,39,176,0.8)' : '3px solid transparent',
+                '&:hover': { background: 'rgba(156,39,176,0.15)' },
+                '&.Mui-selected': { background: 'rgba(156,39,176,0.2)' },
+                '&.Mui-selected:hover': { background: 'rgba(156,39,176,0.25)' },
+              }}
+            >
               <ListItemText primary="ChatBot" />
             </ListItemButton>
 
             {onNavigate && (
-              <ListItemButton onClick={() => handleNav(secondLink.path)}
-                sx={{ color: 'white', '&:hover': { background: 'rgba(156,39,176,0.15)' } }}>
+              <ListItemButton
+                selected={isSecondActive}
+                onClick={() => handleNav(secondLink.path)}
+                sx={{
+                  color: 'white',
+                  borderLeft: isSecondActive ? '3px solid rgba(156,39,176,0.8)' : '3px solid transparent',
+                  '&:hover': { background: 'rgba(156,39,176,0.15)' },
+                  '&.Mui-selected': { background: 'rgba(156,39,176,0.2)' },
+                  '&.Mui-selected:hover': { background: 'rgba(156,39,176,0.25)' },
+                }}
+              >
                 <ListItemText primary={secondLink.label} />
               </ListItemButton>
             )}
@@ -75,11 +98,11 @@ const NavigationMenu = ({ onNavigate, onSignOut }) => {
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center', ml: 'auto' }}>
-      <NavButton onClick={() => onNavigate('/chatbot')}>
+      <NavButton active={isChatbotActive} onClick={() => onNavigate('/chatbot')}>
         ChatBot
       </NavButton>
       {onNavigate && (
-        <NavButton onClick={() => onNavigate(secondLink.path)}>
+        <NavButton active={isSecondActive} onClick={() => onNavigate(secondLink.path)}>
           {secondLink.label}
         </NavButton>
       )}
