@@ -201,16 +201,17 @@ const UserChatDialog = ({ selectedUser, open, onClose }) => {
       <ChatContent>
         <MessagesContainer>
           {userMessages.map((message, index) => (
-            <MessageBubble 
-              key={message.id || index} 
+            <MessageBubble
+              key={message.id || index}
               message={{
                 id: message.id,
                 text: message.message || message.text,
                 isUser: message.sender === advisor?.username,
                 timestamp: new Date(message.timestamp),
                 isTyping: false
-              }} 
+              }}
               isFirstMessage={false}
+              isConversation={true}
             />
           ))}
           <div ref={messagesEndRef} />

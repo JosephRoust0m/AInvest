@@ -222,16 +222,17 @@ const AdvisorChatDialog = ({ advisor, open, onClose }) => {
       <ChatContent>
         <MessagesContainer>
           {advisorMessages.map((message, index) => (
-            <MessageBubble 
-              key={message.id || index} 
+            <MessageBubble
+              key={message.id || index}
               message={{
                 id: message.id,
                 text: message.message || message.text,
                 isUser: message.sender === user?.username,
                 timestamp: new Date(message.timestamp),
                 isTyping: false
-              }} 
+              }}
               isFirstMessage={false}
+              isConversation={true}
             />
           ))}
           <div ref={messagesEndRef} />

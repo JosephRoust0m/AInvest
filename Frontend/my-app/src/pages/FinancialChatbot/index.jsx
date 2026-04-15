@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import React, { useState, useEffect, useRef } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import { Box } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import { useAuth } from '@clerk/clerk-react';
@@ -10,6 +10,7 @@ import ChatMessagesArea from '../../components/ChatMessagesArea';
 import ChatInput from '../../components/ChatInput';
 import StockPredictor from '../../components/StockPredictor';
 import ApiGatewayService from '../../api/ApiGatewayService';
+import { setMessages, addMessage, updateMessage } from '../../store/chatbotSlice';
 
 
 const PageWrapper = styled(Box)(({ theme }) => ({
@@ -67,22 +68,33 @@ const FeatureContent = styled(Box)(({ theme }) => ({
 const FinancialChatbot = () => {
   const { user } = useSelector(state => state.auth);
   const { getToken } = useAuth();
+  const dispatch = useDispatch();
+  const messages = useSelector(state => state.chatbot.messages);
   const [activeFeature, setActiveFeature] = useState('chatbot');
-  const [messages, setMessages] = useState([]);
-
-  useEffect(() => {
-    const username = user?.username || 'User';
-    setMessages([{
-      id: 1,
-      text: `Hello ${username}! I'm your AI Financial Assistant. I can help you with stock analysis, market insights, and investment advice. How can I assist you today?`,
-      isUser: false,
-      timestamp: new Date(),
-      isTyping: false
-    }]);
-  }, [user?.username]);
-
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
+  const typingTimeoutsRef = useRef([]);
+
+  // Set welcome message only on first load (empty messages)
+  useEffect(() => {
+    if (messages.length === 0) {
+      const username = user?.username || 'User';
+      dispatch(setMessages([{
+        id: 1,
+        text: `Hello ${username}! I'm your AI Financial Assistant. I can help you with stock analysis, market insights, and investment advice. How can I assist you today?`,
+        isUser: false,
+        timestamp: new Date().toISOString(),
+        isTyping: false,
+      }]));
+    }
+  }, []);
+
+  // On unmount, complete any in-progress typing so it doesn't hang on return
+  useEffect(() => {
+    return () => {
+      typingTimeoutsRef.current.forEach(id => clearTimeout(id));
+    };
+  }, []);
 
   const featureOptions = [
     { value: 'chatbot', label: 'AI Chatbot' },
@@ -99,6 +111,22 @@ const FinancialChatbot = () => {
     setInputText(event.target.value);
   };
 
+  const typeText = (msgId, responseText) => {
+    typingTimeoutsRef.current.forEach(id => clearTimeout(id));
+    typingTimeoutsRef.current = [];
+    let currentText = '';
+    for (let i = 0; i < responseText.length; i++) {
+      const timeoutId = setTimeout(() => {
+        currentText += responseText[i];
+        dispatch(updateMessage({
+          id: msgId,
+          updates: { text: currentText, isTyping: i < responseText.length - 1 },
+        }));
+      }, i * 8);
+      typingTimeoutsRef.current.push(timeoutId);
+    }
+  };
+
   const sendMessage = async () => {
     if (!inputText.trim() || loading) return;
 
@@ -106,10 +134,10 @@ const FinancialChatbot = () => {
       id: Date.now(),
       text: inputText,
       isUser: true,
-      timestamp: new Date()
+      timestamp: new Date().toISOString(),
     };
 
-    setMessages(prev => [...prev, userMessage]);
+    dispatch(addMessage(userMessage));
     setInputText('');
     setLoading(true);
 
@@ -123,26 +151,12 @@ const FinancialChatbot = () => {
         text: '',
         fullText: responseText,
         isUser: false,
-        timestamp: new Date(),
-        isTyping: true
+        timestamp: new Date().toISOString(),
+        isTyping: true,
       };
 
-      setMessages(prev => [...prev, botMessage]);
-
-      const typeResponse = () => {
-        let currentText = '';
-        for (let i = 0; i < responseText.length; i++) {
-          setTimeout(() => {
-            currentText += responseText[i];
-            setMessages(prev => prev.map(msg =>
-              msg.id === botMessage.id
-                ? { ...msg, text: currentText, isTyping: i < responseText.length - 1 }
-                : msg
-            ));
-          }, i * 30);
-        }
-      };
-      typeResponse();
+      dispatch(addMessage(botMessage));
+      typeText(botMessage.id, responseText);
     } catch (error) {
       console.error('Unexpected error:', error);
       const errorText = "I can only answer finance related questions :)";
@@ -151,24 +165,11 @@ const FinancialChatbot = () => {
         text: '',
         fullText: errorText,
         isUser: false,
-        timestamp: new Date(),
-        isTyping: true
+        timestamp: new Date().toISOString(),
+        isTyping: true,
       };
-      setMessages(prev => [...prev, errorMessage]);
-      const typeError = () => {
-        let currentText = '';
-        for (let i = 0; i < errorText.length; i++) {
-          setTimeout(() => {
-            currentText += errorText[i];
-            setMessages(prev => prev.map(msg =>
-              msg.id === errorMessage.id
-                ? { ...msg, text: currentText, isTyping: i < errorText.length - 1 }
-                : msg
-            ));
-          }, i * 30);
-        }
-      };
-      typeError();
+      dispatch(addMessage(errorMessage));
+      typeText(errorMessage.id, errorText);
     } finally {
       setLoading(false);
     }

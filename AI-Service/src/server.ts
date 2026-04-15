@@ -50,9 +50,9 @@ INSTRUCTIONS:
 5. ONLY reject questions that are completely unrelated to finance, business, economics, or markets (like personal relationships, cooking, sports results, etc.)
 6. If rejecting, respond EXACTLY with: "I can only assist with financial and investment-related topics. Please ask about stocks, investments, market analysis, or other financial matters."
 
-Finance-related topics include (interpret precisely without being too long):
+Finance-related topics include:
 - Stocks, bonds, securities, investments
-- Financial markets and trading  
+- Financial markets and trading
 - Personal finance and financial planning
 - Economic indicators and market analysis
 - Cryptocurrency and digital assets
@@ -64,11 +64,17 @@ Finance-related topics include (interpret precisely without being too long):
 - Business news and corporate earnings
 - Economic events and their market impact
 
+Response length rules (strictly follow these):
+- Greetings and pleasantries (hi, hello, hey, thank you, thanks, good morning, etc.): reply with 1-2 sentences only, stay friendly and brief.
+- Simple yes/no or clarification questions: 1-3 sentences.
+- Straightforward financial questions: a concise paragraph, no more than 5-6 sentences.
+- Complex analytical questions requiring explanation: up to 3 short paragraphs.
+- Never pad responses. Stop when the question is fully answered.
+
 When answering financial questions:
 - Provide accurate information with current market context.
-- Answer in 10-15 lines maximum and in a paragraphed format.
-- Include relevant financial metrics and ratios when applicable
-- Explain financial concepts clearly
+- Include relevant financial metrics and ratios when applicable.
+- Explain financial concepts clearly.
 
 Remember: Be flexible and interpret questions generously - if there's any business, economic, or market angle, treat it as finance-related.`;
 
@@ -100,29 +106,35 @@ async function isValidStockSymbol(symbol: string): Promise<boolean> {
 
 // Function to enhance financial queries for better results
 function enhanceFinancialQuery(message: string): string {
-    const lowerMessage = message.toLowerCase();
-    
+    const lowerMessage = message.toLowerCase().trim();
+
+    // Don't enhance greetings or simple acknowledgements
+    const simpleMessage = /^(hi|hello|hey|thanks|thank you|ty|ok|okay|sure|yes|no|great|good|bye|goodbye|good morning|good evening|good afternoon|sup|what's up|howdy)[^a-z]*$/i;
+    if (simpleMessage.test(lowerMessage)) {
+        return message;
+    }
+
     // Add context for stock-related queries
     if (lowerMessage.includes('stock') || lowerMessage.includes('share')) {
         return `${message}\n\nPlease provide current market analysis including key financial metrics, recent performance, and relevant market context.`;
     }
-    
+
     // Add context for investment queries
     if (lowerMessage.includes('invest') || lowerMessage.includes('portfolio')) {
         return `${message}\n\nPlease include risk assessment, diversification considerations, and current market conditions in your response.`;
     }
-    
+
     // Add context for market queries
     if (lowerMessage.includes('market') || lowerMessage.includes('economy')) {
         return `${message}\n\nPlease provide comprehensive market analysis with recent trends, key indicators, and potential implications.`;
     }
-    
+
     // Add context for crypto queries
     if (lowerMessage.includes('crypto') || lowerMessage.includes('bitcoin') || lowerMessage.includes('ethereum')) {
         return `${message}\n\nPlease include volatility analysis, regulatory considerations, and compare with traditional assets.`;
     }
-    
-    return `${message}\n\nPlease provide detailed financial analysis with relevant metrics and current market context.`;
+
+    return message;
 }
 
 // Health check endpoint

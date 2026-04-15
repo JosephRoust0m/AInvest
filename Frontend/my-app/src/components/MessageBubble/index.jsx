@@ -39,7 +39,7 @@ const formatMessageText = (text, isWelcomeMessage = false) => {
   return formatted;
 };
 
-const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage }) => ({
+const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage, isconversation }) => ({
   maxWidth: '70%',
   padding: theme.spacing(1.5, 2),
   margin: theme.spacing(1, 0),
@@ -54,10 +54,13 @@ const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage })
   display: 'flex',
   alignItems: 'flex-start',
   gap: theme.spacing(1),
-  [theme.breakpoints.down('sm')]: {
-    maxWidth: '100%',
-    alignSelf: 'stretch',
-  },
+  // Full-width stacking only for AI chatbot, not human conversations
+  ...(isconversation !== 'true' && {
+    [theme.breakpoints.down('sm')]: {
+      maxWidth: '100%',
+      alignSelf: 'stretch',
+    },
+  }),
 }));
 
 const MessageIcon = styled(Box)(({ theme }) => ({
@@ -71,16 +74,19 @@ const MessageIcon = styled(Box)(({ theme }) => ({
 
 
 
-const MessageBubble = ({ message, isFirstMessage }) => {
+const MessageBubble = ({ message, isFirstMessage, isConversation = false }) => {
   return (
     <Fade in timeout={600}>
-      <MessageBubbleContainer 
+      <MessageBubbleContainer
         isuser={message.isUser.toString()}
         isfirstmessage={isFirstMessage ? 'true' : 'false'}
+        isconversation={isConversation ? 'true' : 'false'}
       >
         <MessageIcon>
           {message.isUser ? (
             <PersonIcon sx={{ color: 'rgba(156, 39, 176, 0.8)' }} />
+          ) : isConversation ? (
+            <PersonIcon sx={{ color: 'rgba(255, 255, 255, 0.8)' }} />
           ) : (
             <SmartToyIcon sx={{ color: 'rgba(255, 255, 255, 0.8)' }} />
           )}
@@ -102,11 +108,11 @@ const MessageBubble = ({ message, isFirstMessage }) => {
             {formatMessageText(message.text, message.id === 1)}
           </Typography>
           <Typography variant="caption" sx={{ color: 'rgba(255, 255, 255, 0.5)', mt: 0.5 }}>
-            {message.timestamp.toLocaleDateString('en-US', { 
-              weekday: 'short', 
-              month: 'short', 
-              day: 'numeric' 
-            })} at {message.timestamp.toLocaleTimeString('en-US', {
+            {new Date(message.timestamp).toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric'
+            })} at {new Date(message.timestamp).toLocaleTimeString('en-US', {
               hour: '2-digit',
               minute: '2-digit'
             })}
