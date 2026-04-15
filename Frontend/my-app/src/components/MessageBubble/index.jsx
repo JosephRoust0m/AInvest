@@ -1,5 +1,5 @@
 import React from 'react';
-import { Paper, Typography, Box, Fade } from '@mui/material';
+import { Paper, Typography, Box, Fade, useMediaQuery, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import SmartToyIcon from '@mui/icons-material/SmartToy';
 import PersonIcon from '@mui/icons-material/Person';
@@ -54,13 +54,18 @@ const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage, i
   display: 'flex',
   alignItems: 'flex-start',
   gap: theme.spacing(1),
-  // Full-width stacking only for AI chatbot, not human conversations
-  ...(isconversation !== 'true' && {
-    [theme.breakpoints.down('sm')]: {
+  [theme.breakpoints.down('sm')]: {
+    // backdrop-filter blur is expensive on mobile — replace with opaque background
+    backdropFilter: 'none',
+    background: isuser === 'true'
+      ? 'rgba(42, 20, 40, 0.98)'
+      : 'rgba(35, 35, 35, 0.98)',
+    // Full-width stacking only for AI chatbot, not human conversations
+    ...(isconversation !== 'true' && {
       maxWidth: '100%',
       alignSelf: 'stretch',
-    },
-  }),
+    }),
+  },
 }));
 
 const MessageIcon = styled(Box)(({ theme }) => ({
@@ -75,8 +80,12 @@ const MessageIcon = styled(Box)(({ theme }) => ({
 
 
 const MessageBubble = ({ message, isFirstMessage, isConversation = false }) => {
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // Skip animation on mobile to avoid jank when loading message history
+  const fadeTimeout = isMobile ? 0 : 600;
   return (
-    <Fade in timeout={600}>
+    <Fade in timeout={fadeTimeout}>
       <MessageBubbleContainer
         isuser={message.isUser.toString()}
         isfirstmessage={isFirstMessage ? 'true' : 'false'}

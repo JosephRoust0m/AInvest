@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
+import { setLastLogout } from '../../store/authSlice';
 import {
   Dialog,
   DialogTitle,
@@ -7,11 +8,7 @@ import {
   Box,
   Typography,
   IconButton,
-  Paper,
-  Avatar,
-  Fade,
-  useMediaQuery,
-  useTheme
+  Avatar
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import CloseIcon from '@mui/icons-material/Close';
@@ -19,6 +16,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import ChatInput from '../ChatInput';
 import useMessage from '../../model/useMessage';
 import MessageBubble from '../MessageBubble';
+
 
 const StyledDialog = styled(Dialog)(({ theme }) => ({
   '& .MuiDialog-paper': {
@@ -95,8 +93,6 @@ const ChatContent = styled(DialogContent)(({ theme }) => ({
 }));
 
 const AdvisorChatDialog = ({ advisor, open, onClose }) => {
-  const theme = useTheme();
-  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
   // Force update on global conversations-updated event
   useEffect(() => {
     const forceUpdate = () => setInputText(inputText => inputText);
@@ -104,9 +100,10 @@ const AdvisorChatDialog = ({ advisor, open, onClose }) => {
     return () => window.removeEventListener('conversations-updated', forceUpdate);
   }, []);
 
+  const dispatch = useDispatch();
   const conversations = useSelector(state => state.conversations.conversations);
   const { user } = useSelector(state => state.auth);
-  const { createConversation, addMessage } = useMessage();
+  const { createConversation, addMessage, clearUnreadCount } = useMessage();
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -169,8 +166,12 @@ const AdvisorChatDialog = ({ advisor, open, onClose }) => {
     setLoading(false);
   };
 
-  const handleClose = async () => {
+  const handleClose = () => {
     setInputText('');
+    if (currentConvo?.id) {
+      clearUnreadCount(currentConvo.id);
+    }
+    dispatch(setLastLogout(Date.now()));
     onClose();
   };
   // // Update dialog when conversations change (new message arrives/sent)
@@ -188,7 +189,6 @@ const AdvisorChatDialog = ({ advisor, open, onClose }) => {
       onClose={handleClose}
       maxWidth="md"
       fullWidth
-      fullScreen={fullScreen}
     >
       <DialogHeader>
         <AdvisorInfo>
