@@ -93,13 +93,15 @@ const AdvisorContacts = () => {
   const { getToken } = useAuth();
   const conversations = useSelector(state => state.conversations.conversations);
   const lastLogout = useSelector(state => state.auth.user?.lastLogout);
+  const username = useSelector(state => state.auth.user?.username);
 
-  // Recalculate unread counts once lastLogout is fetched from DB after sign-in
   useEffect(() => {
     if (!lastLogout || conversations.length === 0) return;
     const updated = conversations.map(convo => ({
       ...convo,
-      unreadCount: message.countUnreadMessages(convo),
+      unreadCount: convo.conversation.filter(
+        msg => new Date(msg.timestamp) > new Date(lastLogout) && msg.receiver === username
+      ).length,
     }));
     dispatch(setConversations(updated));
   }, [lastLogout]);

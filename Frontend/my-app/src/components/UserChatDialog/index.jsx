@@ -30,9 +30,11 @@ const StyledDialog = styled(Dialog)(({ theme }) => ({
       borderRadius: 0,
       margin: 0,
       width: '100vw',
-      height: '100dvh',
       maxWidth: '100vw',
-      maxHeight: '100dvh',
+      height: '-webkit-fill-available',
+      maxHeight: '-webkit-fill-available',
+      display: 'flex',
+      flexDirection: 'column',
     },
   },
 }));
@@ -87,7 +89,9 @@ const ChatContent = styled(DialogContent)(({ theme }) => ({
   flexDirection: 'column',
   height: 'calc(80vh - 80px)',
   [theme.breakpoints.down('sm')]: {
-    height: 'calc(100dvh - 72px)',
+    flex: 1,
+    height: 0,
+    overflow: 'hidden',
   },
 }));
 

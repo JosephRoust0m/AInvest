@@ -11,6 +11,10 @@ const InputContainer = styled(Box)(({ theme }) => ({
   backdropFilter: 'blur(10px)',
   borderRadius: theme.spacing(2),
   border: '1px solid rgba(255, 255, 255, 0.1)',
+  [theme.breakpoints.down('sm')]: {
+    backdropFilter: 'none',
+    background: 'rgba(35, 35, 35, 0.98)',
+  },
 }));
 
 const StyledTextField = styled(TextField)(({ theme }) => ({
