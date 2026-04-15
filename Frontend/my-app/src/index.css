@@ -5,12 +5,19 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+  background-color: #0a0a0a;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+@media (max-width: 600px) {
+  html {
+    background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 40%, #2a1428 70%, #000000 100%);
+    background-attachment: fixed;
+  }
 }
 
 a {
@@ -69,7 +76,7 @@ button:focus-visible {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: #ffffff;
+    background-color: #0a0a0a;
   }
   a:hover {
     color: #747bff;
