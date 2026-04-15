@@ -44,8 +44,8 @@ const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage })
   padding: theme.spacing(1.5, 2),
   margin: theme.spacing(1, 0),
   borderRadius: theme.spacing(2),
-  background: isuser === 'true' 
-    ? 'linear-gradient(135deg, #2a1428 0%, #1a1a1a 100%)' 
+  background: isuser === 'true'
+    ? 'linear-gradient(135deg, #2a1428 0%, #1a1a1a 100%)'
     : 'rgba(255, 255, 255, 0.05)',
   border: `1px solid ${isuser === 'true' ? 'rgba(156, 39, 176, 0.3)' : 'rgba(255, 255, 255, 0.1)'}`,
   backdropFilter: 'blur(10px)',
@@ -54,6 +54,10 @@ const MessageBubbleContainer = styled(Paper)(({ theme, isuser, isfirstmessage })
   display: 'flex',
   alignItems: 'flex-start',
   gap: theme.spacing(1),
+  [theme.breakpoints.down('sm')]: {
+    maxWidth: '100%',
+    alignSelf: 'stretch',
+  },
 }));
 
 const MessageIcon = styled(Box)(({ theme }) => ({
