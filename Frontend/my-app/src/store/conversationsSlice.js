@@ -34,6 +34,7 @@ const conversationsSlice = createSlice({
         } else {
           convo.last_closed_user = now
         }
+        convo.lastClosedDirty = true
       }
     },
   },

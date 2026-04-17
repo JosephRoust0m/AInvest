@@ -27,7 +27,7 @@ const Navbar = () => {
       const token = await auth.getToken();
       // Save per-conversation last_closed timestamps before signing out
       const convosToSave = conversations
-        .filter(c => c.id && (c.last_closed_user || c.last_closed_advisor))
+        .filter(c => c.id && c.lastClosedDirty)
         .map(c => ({
           id: c.id,
           last_closed_user: c.last_closed_user ?? null,
