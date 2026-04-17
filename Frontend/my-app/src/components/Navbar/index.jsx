@@ -16,6 +16,7 @@ const StyledAppBar = styled(AppBar)(({ theme }) => ({
 
 const Navbar = () => {
   const { user, userType } = useSelector(state => state.auth);
+  const conversations = useSelector(state => state.conversations.conversations);
   const navigate = useNavigate();
   const auth = useAuth();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -24,6 +25,17 @@ const Navbar = () => {
     setLoggingOut(true);
     try {
       const token = await auth.getToken();
+      // Save per-conversation last_closed timestamps before signing out
+      const convosToSave = conversations
+        .filter(c => c.id && (c.last_closed_user || c.last_closed_advisor))
+        .map(c => ({
+          id: c.id,
+          last_closed_user: c.last_closed_user ?? null,
+          last_closed_advisor: c.last_closed_advisor ?? null,
+        }));
+      if (convosToSave.length > 0) {
+        await ApiGatewayService.saveLastClosed(convosToSave, token).catch(() => {});
+      }
       if (userType === 'advisor') {
         await ApiGatewayService.sendLogoutTimestampAdvisor(user.username, token);
       } else {

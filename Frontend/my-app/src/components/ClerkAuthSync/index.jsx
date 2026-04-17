@@ -1,11 +1,11 @@
 import { useEffect } from 'react';
 import { useAuth, useUser } from '@clerk/clerk-react';
 import { useDispatch } from 'react-redux';
-import { loginSuccess, logout, setLastLogout } from '../../store/authSlice';
-import ApiGatewayService from '../../api/ApiGatewayService';
+import { loginSuccess, logout } from '../../store/authSlice';
+import useSyncLastClosed from '../../hooks/useSyncLastClosed';
 
 const ClerkAuthSync = () => {
-  const { isSignedIn, isLoaded, sessionClaims, getToken } = useAuth();
+  const { isSignedIn, isLoaded, sessionClaims } = useAuth();
   const { user } = useUser();
   const dispatch = useDispatch();
 
@@ -19,18 +19,12 @@ const ClerkAuthSync = () => {
         email: user.emailAddresses[0]?.emailAddress,
         userType: role === 'advisor' ? 'advisor' : 'user',
       }));
-
-      // Fetch last logout from the correct table (users vs advisors)
-      const userType = role === 'advisor' ? 'advisor' : 'user';
-      getToken().then(token =>
-        ApiGatewayService.fetchLastLogout(username, userType, token)
-          .then(result => { if (result?.lastLogout) dispatch(setLastLogout(result.lastLogout)); })
-          .catch(() => {})
-      );
     } else if (!isSignedIn) {
       dispatch(logout());
     }
   }, [isSignedIn, isLoaded, user, sessionClaims, dispatch]);
+
+  useSyncLastClosed();
 
   return null;
 };

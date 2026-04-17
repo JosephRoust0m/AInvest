@@ -1,4 +1,3 @@
-import { randomUUID } from 'crypto';
 import db from './database';
 
 export interface Message {
@@ -14,6 +13,8 @@ export interface Conversation {
   user_username: string;
   advisor_username: string;
   conversation: Message[];
+  last_closed_user?: number | null;
+  last_closed_advisor?: number | null;
 }
 
 class ConversationService {
@@ -22,17 +23,32 @@ class ConversationService {
       if (!convo.id) {
         convo.id = Math.floor(Math.random() * 1000000);
         await db.queryOne(
-          `INSERT INTO conversations (id, user_username, advisor_username, conversation) VALUES ($1, $2, $3, $4)
-           ON CONFLICT (id) DO UPDATE SET user_username = $2, advisor_username = $3, conversation = $4 RETURNING id`,
-          [convo.id, convo.user_username, convo.advisor_username, convo.conversation]
+          `INSERT INTO conversations (id, user_username, advisor_username, conversation, last_closed_user, last_closed_advisor)
+           VALUES ($1, $2, $3, $4, $5, $6)
+           ON CONFLICT (id) DO UPDATE SET user_username = $2, advisor_username = $3, conversation = $4,
+             last_closed_user = $5, last_closed_advisor = $6
+           RETURNING id`,
+          [convo.id, convo.user_username, convo.advisor_username, convo.conversation,
+           convo.last_closed_user ?? null, convo.last_closed_advisor ?? null]
         );
       } else {
         await db.queryOne(
-          `UPDATE conversations SET user_username = $2, advisor_username = $3, conversation = $4
+          `UPDATE conversations SET user_username = $2, advisor_username = $3, conversation = $4,
+             last_closed_user = $5, last_closed_advisor = $6
            WHERE id = $1 RETURNING id`,
-          [convo.id, convo.user_username, convo.advisor_username, convo.conversation]
+          [convo.id, convo.user_username, convo.advisor_username, convo.conversation,
+           convo.last_closed_user ?? null, convo.last_closed_advisor ?? null]
         );
       }
+    }
+  }
+
+  async updateLastClosed(updates: Array<{ id: number; last_closed_user?: number | null; last_closed_advisor?: number | null }>): Promise<void> {
+    for (const update of updates) {
+      await db.queryOne(
+        `UPDATE conversations SET last_closed_user = $2, last_closed_advisor = $3 WHERE id = $1`,
+        [update.id, update.last_closed_user ?? null, update.last_closed_advisor ?? null]
+      );
     }
   }
 

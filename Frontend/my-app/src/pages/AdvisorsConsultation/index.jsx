@@ -7,12 +7,11 @@ import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import AdvisorCard from '../../components/AdvisorCard';
 import ApiGatewayService from '../../api/ApiGatewayService';
-import { setConversations } from '../../store/conversationsSlice';
+import { setConversations, openConversation, closeConversation } from '../../store/conversationsSlice';
 import { setAdvisors } from '../../store/advisorsSlice';
 import { openChat, closeChat } from '../../store/activeChatsSlice';
 import AdvisorChatDialog from '../../components/AdvisorChatDialog';
 import useMessage from '../../model/useMessage';
-import useAuth_ from '../../model/useAuth';
 
 const PageWrapper = styled(Box)(({ theme }) => ({
   minHeight: '100vh',
@@ -89,23 +88,10 @@ const AdvisorConsultation = () => {
   const [loading, setLoading] = useState(true);
   const [selectedAdvisor, setSelectedAdvisor] = useState(null);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
-  const message = useMessage();
   const conversations = useSelector(state => state.conversations.conversations);
-  const lastLogout = useSelector(state => state.auth.user?.lastLogout);
   const username = useSelector(state => state.auth.user?.username);
-  const auth = useAuth_();
   const { getToken } = useAuth();
-
-  useEffect(() => {
-    if (!lastLogout || conversations.length === 0) return;
-    const updated = conversations.map(convo => ({
-      ...convo,
-      unreadCount: convo.conversation.filter(
-        msg => new Date(msg.timestamp) > new Date(lastLogout) && msg.receiver === username
-      ).length,
-    }));
-    dispatch(setConversations(updated));
-  }, [lastLogout]);
+  useMessage(); // keeps WebSocket connection alive
 
   useEffect(() => {
     const fetchAdvisors = async () => {
@@ -129,7 +115,12 @@ const AdvisorConsultation = () => {
         if (result && (result.data || Array.isArray(result))) {
           const convos = result.data || result;
           for (const convo of convos) {
-            convo.unreadCount = message.countUnreadMessages(convo);
+            convo.open = false;
+            convo.unreadCount = convo.last_closed_user
+              ? convo.conversation.filter(
+                  msg => msg.receiver === username && new Date(msg.timestamp) > new Date(convo.last_closed_user)
+                ).length
+              : 0;
           }
           dispatch(setConversations(convos));
         }
@@ -149,8 +140,10 @@ const AdvisorConsultation = () => {
       console.error('User not logged in');
       return;
     }
-    const conversationId = conversations.find(convo => convo.user_username === user.username)?.id;
-    message.clearUnreadCount(conversationId);
+    const convo = conversations.find(c => c.user_username === user.username && c.advisor_username === advisor.username);
+    if (convo?.id) {
+      dispatch(openConversation(convo.id));
+    }
     setSelectedAdvisor(advisor);
     setChatDialogOpen(true);
     dispatch(openChat(advisor.username));
@@ -160,8 +153,11 @@ const AdvisorConsultation = () => {
     setChatDialogOpen(false);
     if (selectedAdvisor?.username) {
       dispatch(closeChat(selectedAdvisor.username));
+      const convo = conversations.find(c => c.user_username === user.username && c.advisor_username === selectedAdvisor.username);
+      if (convo?.id) {
+        dispatch(closeConversation({ convoId: convo.id, userType: 'user' }));
+      }
     }
-    auth.setNewLogoutTime();
     setSelectedAdvisor(null);
   };
 

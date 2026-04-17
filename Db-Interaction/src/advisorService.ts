@@ -99,10 +99,13 @@ export class AdvisorService {
     return result;
 
     }
-  async fetchAdvisorsConversation(username: string): Promise<Advisor[]> {
-    const query = 'SELECT * FROM conversations Where advisor_username=$1';
-    const conversations = await db.queryMany(query, [username]);
-    return conversations;
+  async fetchAdvisorsConversation(username: string): Promise<any[]> {
+    const conversations = await db.queryMany('SELECT * FROM conversations WHERE advisor_username=$1', [username]);
+    return conversations.map((c: any) => ({
+      ...c,
+      last_closed_user: c.last_closed_user != null ? Number(c.last_closed_user) : null,
+      last_closed_advisor: c.last_closed_advisor != null ? Number(c.last_closed_advisor) : null,
+    }));
   }
 }
 

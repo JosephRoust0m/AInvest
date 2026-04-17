@@ -203,10 +203,13 @@ export class UserService {
     return { lastLogout: user?.last_logout ?? null };
   }
 
-  async fetchUsersConversation(username: string): Promise<User[]> {
-    const query = 'SELECT * FROM conversations Where user_username=$1';
-    const conversations = await db.queryMany(query, [username]);
-    return conversations;
+  async fetchUsersConversation(username: string): Promise<any[]> {
+    const conversations = await db.queryMany('SELECT * FROM conversations WHERE user_username=$1', [username]);
+    return conversations.map(c => ({
+      ...c,
+      last_closed_user: c.last_closed_user != null ? Number(c.last_closed_user) : null,
+      last_closed_advisor: c.last_closed_advisor != null ? Number(c.last_closed_advisor) : null,
+    }));
   }
 
   async createUserFromWebhook({ clerkId, username, email }: { clerkId: string; username: string; email: string }) {

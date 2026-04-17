@@ -51,6 +51,10 @@ class ApiGatewayService {
     return this._request('/api/conversations/save', 'POST', { conversations }, token);
   }
 
+  async saveLastClosed(conversations, token) {
+    return this._request('/api/conversations/last-closed', 'POST', { conversations }, token);
+  }
+
   async sendMessage(message, token) {
     return this._request('/api/message', 'POST', message, token);
   }

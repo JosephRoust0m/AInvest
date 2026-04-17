@@ -132,6 +132,10 @@ app.post('/api/conversations/save', authenticate, (req, res) => {
   forwardRequest(`${DB_SERVICE_URL}/api/conversations/save`, req, res);
 });
 
+app.post('/api/conversations/last-closed', authenticate, (req, res) => {
+  forwardRequest(`${DB_SERVICE_URL}/api/conversations/last-closed`, req, res);
+});
+
 // ── Chat Service Routes ───────────────────────────────────────────────────────
 
 app.post('/api/message', authenticate, (req, res) => {

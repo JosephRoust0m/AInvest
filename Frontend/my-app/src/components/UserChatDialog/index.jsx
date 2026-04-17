@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { setLastLogout } from '../../store/authSlice';
+import { useSelector } from 'react-redux';
 import {
   Dialog,
   DialogTitle,
@@ -103,10 +102,9 @@ const UserChatDialog = ({ selectedUser, open, onClose }) => {
     return () => window.removeEventListener('conversations-updated', forceUpdate);
   }, []);
 
-  const dispatch = useDispatch();
   const conversations = useSelector(state => state.conversations.conversations);
   const advisor = useSelector(state => state.auth.user);
-  const { addMessage, clearUnreadCount } = useMessage();
+  const { addMessage } = useMessage();
   const [inputText, setInputText] = useState('');
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
@@ -155,10 +153,6 @@ const UserChatDialog = ({ selectedUser, open, onClose }) => {
 
   const handleClose = () => {
     setInputText('');
-    if (currentConvo?.id) {
-      clearUnreadCount(currentConvo.id);
-    }
-    dispatch(setLastLogout(Date.now()));
     onClose();
   };
     // Update dialog when conversations change (new message arrives/sent)

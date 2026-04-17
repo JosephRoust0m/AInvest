@@ -150,6 +150,16 @@ app.post('/api/conversations/save', requireGateway, async (req, res) => {
   }
 });
 
+app.post('/api/conversations/last-closed', requireGateway, async (req, res) => {
+  try {
+    const { conversations } = req.body;
+    await conversationService.updateLastClosed(conversations);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ message: error instanceof Error ? error.message : 'Failed to update last closed timestamps' });
+  }
+});
+
 app.post('/api/save-message', requireGateway, async (req, res) => {
   try {
     const message = req.body;

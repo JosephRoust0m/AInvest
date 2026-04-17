@@ -9,16 +9,12 @@ const useMessage = () => {
   const conversations = useSelector(state => state.conversations.conversations);
   const username = useSelector(state => state.auth.user?.username);
   const userType = useSelector(state => state.auth.userType);
-  const lastLogout = useSelector(state => state.auth.user?.lastLogout);
-  const activeChat = useSelector(state => state.activeChats.activeChats);
-  const activeChatSender = useRef(activeChat);
   const refConversations = useRef(conversations);
   const { getToken } = useAuth();
 
   useEffect(() => {
     refConversations.current = conversations;
-    activeChatSender.current = activeChat;
-  }, [conversations, activeChat]);
+  }, [conversations]);
 
   useEffect(() => {
     if (!username) return;
@@ -54,7 +50,8 @@ const useMessage = () => {
       user_username,
       advisor_username,
       conversation: [message],
-      unreadCount: (message.receiver === username && message.sender !== activeChatSender.current) ? 1 : 0,
+      open: false,
+      unreadCount: (direction === 'incoming' && message.receiver === username) ? 1 : 0,
     };
     if (direction === 'outgoing') {
       getToken().then(token => {
@@ -77,7 +74,7 @@ const useMessage = () => {
         return {
           ...convo,
           conversation: [...convo.conversation, message],
-          unreadCount: (message.receiver === username && message.sender !== activeChatSender.current)
+          unreadCount: (direction === 'incoming' && message.receiver === username && !convo.open)
             ? convo.unreadCount + 1
             : convo.unreadCount,
         };
@@ -88,28 +85,9 @@ const useMessage = () => {
     window.dispatchEvent(new Event('conversations-updated'));
   };
 
-  const countUnreadMessages = (convo) => {
-    if (!lastLogout) return 0;
-    return convo.conversation.filter(
-      msg => new Date(msg.timestamp) > new Date(lastLogout) && msg.receiver === username
-    ).length;
-  };
-
-  const clearUnreadCount = (convoId) => {
-    const updatedConvos = refConversations.current.map(convo => {
-      if (convo.id === convoId) {
-        return { ...convo, unreadCount: 0 };
-      }
-      return convo;
-    });
-    dispatch(setConversations(updatedConvos));
-  };
-
   return {
     createConversation,
-    clearUnreadCount,
     addMessage,
-    countUnreadMessages,
   };
 };
 
