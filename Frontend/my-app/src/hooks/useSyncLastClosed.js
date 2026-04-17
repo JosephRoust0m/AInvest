@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { useAuth } from '@clerk/clerk-react';
 import ApiGatewayService from '../api/ApiGatewayService';
 
-const SAVE_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
+const SAVE_INTERVAL_MS = 1 * 60 * 1000; // 1 minute
 
 const useSyncLastClosed = () => {
   const conversations = useSelector(state => state.conversations.conversations);

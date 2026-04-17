@@ -1,13 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react'; // useEffect kept for conversations-updated listener
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, Grid, CircularProgress, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import UserCard from '../../components/UserCard';
-import ApiGatewayService from '../../api/ApiGatewayService';
-import { setConversations, openConversation, closeConversation } from '../../store/conversationsSlice';
+import { openConversation, closeConversation } from '../../store/conversationsSlice';
 import { openChat, closeChat } from '../../store/activeChatsSlice';
 import UserChatDialog from '../../components/UserChatDialog';
 import useMessage from '../../model/useMessage';
@@ -55,15 +53,6 @@ const UsersGrid = styled(Grid)(({ theme }) => ({
   margin: '0 auto',
 }));
 
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '400px',
-  gap: theme.spacing(2),
-}));
-
 const EmptyState = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -84,13 +73,10 @@ const AdvisorContacts = () => {
 
   const dispatch = useDispatch();
   const advisor = useSelector(state => state.auth.user);
-  const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState(null);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
-  const { getToken } = useAuth();
   useMessage(); // keeps WebSocket connection alive
   const conversations = useSelector(state => state.conversations.conversations);
-  const username = useSelector(state => state.auth.user?.username);
 
   const handleUserClick = (user) => {
     if (!user?.username) {
@@ -105,35 +91,6 @@ const AdvisorContacts = () => {
     setChatDialogOpen(true);
     dispatch(openChat(user.username));
   };
-
-  useEffect(() => {
-    const loadAllData = async () => {
-      setLoading(true);
-      try {
-        if (advisor?.username) {
-          const token = await getToken();
-          const result = await ApiGatewayService.fetchAdvisorConversations(advisor.username, token);
-          if (result && (result.data || Array.isArray(result))) {
-            const convos = result.data || result;
-            for (const convo of convos) {
-              convo.open = false;
-              convo.unreadCount = convo.last_closed_advisor
-                ? convo.conversation.filter(
-                    msg => msg.receiver === username && new Date(msg.timestamp) > new Date(convo.last_closed_advisor)
-                  ).length
-                : 0;
-            }
-            dispatch(setConversations(convos));
-          }
-        }
-      } catch (error) {
-        console.error('Error loading data:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    loadAllData();
-  }, [advisor?.username]);
 
   const users = conversations === undefined ? [] : conversations.length > 0
     ? conversations.map(conv => ({ username: conv.user_username }))
@@ -159,14 +116,7 @@ const AdvisorContacts = () => {
           Contacts - {advisor?.username}
         </PageTitle>
 
-        {loading ? (
-          <LoadingContainer>
-            <CircularProgress size={40} sx={{ color: 'rgba(156, 39, 176, 0.8)' }} />
-            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-              Loading conversations...
-            </Typography>
-          </LoadingContainer>
-        ) : users.length === 0 ? (
+        {users.length === 0 ? (
           <EmptyState>
             <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               No conversations yet

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { Box, Grid, CircularProgress, Typography } from '@mui/material';
+import { Box, Grid, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { useAuth } from '@clerk/clerk-react';
 import Navbar from '../../components/Navbar';
 import PageTitle from '../../components/PageTitle';
 import AdvisorCard from '../../components/AdvisorCard';
-import ApiGatewayService from '../../api/ApiGatewayService';
-import { setConversations, openConversation, closeConversation } from '../../store/conversationsSlice';
-import { setAdvisors } from '../../store/advisorsSlice';
+import { openConversation, closeConversation } from '../../store/conversationsSlice';
 import { openChat, closeChat } from '../../store/activeChatsSlice';
 import AdvisorChatDialog from '../../components/AdvisorChatDialog';
 import useMessage from '../../model/useMessage';
@@ -55,15 +52,6 @@ const AdvisorsGrid = styled(Grid)(({ theme }) => ({
   margin: '0 auto',
 }));
 
-const LoadingContainer = styled(Box)(({ theme }) => ({
-  display: 'flex',
-  flexDirection: 'column',
-  alignItems: 'center',
-  justifyContent: 'center',
-  minHeight: '400px',
-  gap: theme.spacing(2),
-}));
-
 const EmptyState = styled(Box)(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
@@ -85,55 +73,10 @@ const AdvisorConsultation = () => {
   const dispatch = useDispatch();
   const { user } = useSelector(state => state.auth);
   const advisors = useSelector(state => state.advisors.advisors);
-  const [loading, setLoading] = useState(true);
   const [selectedAdvisor, setSelectedAdvisor] = useState(null);
   const [chatDialogOpen, setChatDialogOpen] = useState(false);
   const conversations = useSelector(state => state.conversations.conversations);
-  const username = useSelector(state => state.auth.user?.username);
-  const { getToken } = useAuth();
   useMessage(); // keeps WebSocket connection alive
-
-  useEffect(() => {
-    const fetchAdvisors = async () => {
-      try {
-        setLoading(true);
-        const token = await getToken();
-        const result = await ApiGatewayService.fetchAdvisors(token);
-        dispatch(setAdvisors(result || []));
-      } catch (error) {
-        console.error('Error fetching advisors:', error);
-        dispatch(setAdvisors([]));
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    const fetchConversationsWithAdvisors = async (username) => {
-      try {
-        const token = await getToken();
-        const result = await ApiGatewayService.fetchUserConversations(username, token);
-        if (result && (result.data || Array.isArray(result))) {
-          const convos = result.data || result;
-          for (const convo of convos) {
-            convo.open = false;
-            convo.unreadCount = convo.last_closed_user
-              ? convo.conversation.filter(
-                  msg => msg.receiver === username && new Date(msg.timestamp) > new Date(convo.last_closed_user)
-                ).length
-              : 0;
-          }
-          dispatch(setConversations(convos));
-        }
-      } catch (error) {
-        console.error('Error fetching conversations:', error);
-      }
-    };
-
-    fetchAdvisors();
-    if (user?.username) {
-      fetchConversationsWithAdvisors(user.username);
-    }
-  }, []);
 
   const handleAdvisorClick = (advisor) => {
     if (!user?.email) {
@@ -169,14 +112,7 @@ const AdvisorConsultation = () => {
           Advisor Consultation
         </PageTitle>
 
-        {loading ? (
-          <LoadingContainer>
-            <CircularProgress size={40} sx={{ color: 'rgba(156, 39, 176, 0.8)' }} />
-            <Typography variant="body1" sx={{ color: 'rgba(255, 255, 255, 0.7)' }}>
-              Loading financial advisors...
-            </Typography>
-          </LoadingContainer>
-        ) : advisors.length === 0 ? (
+        {advisors.length === 0 ? (
           <EmptyState>
             <Typography variant="h6" sx={{ color: 'rgba(255, 255, 255, 0.8)' }}>
               No advisors available
