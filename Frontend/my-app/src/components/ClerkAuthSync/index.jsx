@@ -53,7 +53,7 @@ const ClerkAuthSync = () => {
     } else if (!isSignedIn) {
       dispatch(logout());
     }
-  }, [isSignedIn, isLoaded, user, sessionClaims, dispatch]);
+  }, [isSignedIn, isLoaded]);
 
   useSyncLastClosed();
 
