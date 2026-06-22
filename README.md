@@ -1,1 +1,1 @@
-You can find the app here:  https://ainvest-hvh5e9d3beh4hcad.canadacentral-01.azurewebsites.net/
+
