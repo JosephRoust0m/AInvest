@@ -1,4 +1,4 @@
-## This is what the architecture looks like
+## Architecture:
 
 ![Dashboard Screenshot](https://github.com/user-attachments/assets/3ec97390-6c8c-45a9-a56a-41e801c7c0b2)
 
